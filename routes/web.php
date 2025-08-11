@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\LogController;
+use App\Http\Controllers\BarangController;
+use App\Http\Controllers\RakController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -33,6 +37,17 @@ Route::get('/dashboard', function () {
     return view('layouts.dashboard'); // layouts/dashboard.blade.php
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::middleware(['auth'])->group(function () {
+    // Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/daftar-barang', [BarangController::class, 'index'])->name('daftar-barang');
+    Route::get('/tatanan-rak', [RakController::class, 'index'])->name('tatanan-rak');
+
+    Route::middleware(['role:superadmin'])->group(function () {
+        Route::get('/aktifitas-log', [LogController::class, 'index'])->name('aktifitas-log');
+        Route::get('/kelola-akun', [UserController::class, 'manage'])->name('kelola-akun');
+    });
+});
 
 
 require __DIR__.'/auth.php';
