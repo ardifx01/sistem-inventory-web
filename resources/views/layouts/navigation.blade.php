@@ -11,24 +11,6 @@
                 </div>
 
                 <!-- Navigation Links -->
-<<<<<<< HEAD
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('items.index')" :active="request()->routeIs('items.*')">
-                        {{ __('Daftar Barang') }}
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Tatanan Rak') }}
-                    </x-nav-link>
-                </div>
-                
-=======
                 @php $role = Auth::user()->role; @endphp
 
                 {{-- Menu untuk admin dan user (dan superadmin otomatis juga) --}}
@@ -63,7 +45,6 @@
                         </x-nav-link>
                     </div>
                 @endif
->>>>>>> dde84a74e7255d37f21bb0f8f7118be91f397152
             </div>
 
             <!-- Settings Dropdown -->
