@@ -22,38 +22,36 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-        public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request): RedirectResponse
     {
-        // Ambil user berdasarkan email
-        $user = \App\Models\User::where('email', $request->email)->first();
+        // Tentukan apakah input login berupa email atau username
+        $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        // Ambil user berdasarkan email atau username
+        $user = \App\Models\User::where($loginType, $request->login)->first();
 
         // Cek apakah user ada
         if (!$user) {
             return back()->withErrors([
-                'email' => 'Email atau password salah.',
+                'login' => 'Email/Username atau password salah.',
             ]);
         }
 
         // Cek status akun
         if ($user->status === 'inactive') {
             return back()->withErrors([
-                'email' => 'Akun Anda sedang nonaktif. Silakan hubungi Super Admin.',
+                'login' => 'Akun Anda sedang nonaktif. Silakan hubungi Super Admin.',
             ]);
         }
 
-        // Proses autentikasi (pakai method bawaan Breeze)
+        // Proses autentikasi
         $request->authenticate();
         $request->session()->regenerate();
 
         // Redirect sesuai role
-        if ($user->role === 'superadmin') {
-            return redirect()->route('dashboard');
-        } elseif ($user->role === 'admin') {
-            return redirect()->route('dashboard');
-        } else {
-            return redirect()->route('dashboard');
-        }
+        return redirect()->route('dashboard');
     }
+
 
 
     /**
