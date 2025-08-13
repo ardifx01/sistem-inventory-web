@@ -4,20 +4,19 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LogController;
-use App\Http\Controllers\BarangController;
-use App\Http\Controllers\RakController;
+use App\Http\Controllers\ItemController;
 use App\Http\Controllers\KelolaAkunController;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\ManageUsers;
+
+
+
 
 
     Route::get('/', function () {
         return view('welcome');
     });
 
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->middleware(['auth', 'verified'])->name('dashboard');
 
     Route::middleware('auth')->group(function () {
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -30,9 +29,18 @@ use App\Livewire\ManageUsers;
     })->middleware(['auth', 'verified'])->name('dashboard');
 
     Route::middleware(['auth'])->group(function () {
-        // Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/items', [ItemController::class, 'index'])->name('items.index');
+    
+    // Hanya admin & superadmin bisa CRUD
+    Route::middleware('role:admin,superadmin')->group(function () {
+        Route::get('/items/create', [ItemController::class, 'create'])->name('items.create');
+        Route::post('/items', [ItemController::class, 'store'])->name('items.store');
+        Route::get('/items/{item}/edit', [ItemController::class, 'edit'])->name('items.edit');
+        Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
+        Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
+    });
+    // Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/tatanan-rak', [RakController::class, 'index'])->name('tatanan-rak');
 
     Route::middleware(['role:superadmin'])->group(function () {
         Route::get('/aktifitas-log', [LogController::class, 'index'])->name('aktifitas-log');
