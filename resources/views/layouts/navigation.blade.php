@@ -21,12 +21,12 @@
                             </x-nav-link>
                         </div>
                         <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                            <x-nav-link :href="route('daftar-barang')" :active="request()->routeIs('dashboard')">
+                            <x-nav-link :href="route('items.index')" :active="request()->routeIs('items.*')">
                                 {{ __('Daftar Barang') }}
                             </x-nav-link>
                         </div>
                         <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                            <x-nav-link :href="route('tatanan-rak')" :active="request()->routeIs('dashboard')">
+                            <x-nav-link :href="route('tatanan-rack')" :active="request()->routeIs('dashboard')">
                                 {{ __('Tatanan Rak') }}
                             </x-nav-link>
                         </div>
@@ -40,11 +40,12 @@
                             </x-nav-link>
                         </div>
                         <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                            <x-nav-link :href="route('kelola-akun')" :active="request()->routeIs('dashboard')">
+                            <x-nav-link :href="route('kelola-akun')" :active="request()->routeIs('kelola-akun')">
                                 {{ __('Kelola Akun') }}
                             </x-nav-link>
                         </div>
                     @endif
+
                 </div>
 
                 <!-- Settings Dropdown -->
@@ -116,7 +117,7 @@
                     <x-responsive-nav-link :href="route('daftar-barang')" :active="request()->routeIs('daftar-barang')">
                         {{ __('Daftar Barang') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('tatanan-rak')" :active="request()->routeIs('tatanan-rak')">
+                    <x-responsive-nav-link :href="route('tatanan-rack')" :active="request()->routeIs('tatanan-rak')">
                         {{ __('Tatanan Rak') }}
                     </x-responsive-nav-link>
                 @endif
@@ -129,6 +130,7 @@
                         {{ __('Kelola Akun') }}
                     </x-responsive-nav-link>
                 @endif
+
             </div>
 
             <!-- Responsive Settings Options -->

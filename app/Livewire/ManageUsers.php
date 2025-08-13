@@ -9,8 +9,7 @@ use Illuminate\Support\Facades\Hash;
 class ManageUsers extends Component
 {
     public $name, $email, $username, $password, $role = 'user', $status = 'active';
-    public $userId;
-    public $isEdit = false;
+    public $userId, $isEdit = false, $showModal = false;
 
     public function render()
     {
@@ -26,6 +25,7 @@ class ManageUsers extends Component
         $this->status = 'active';
         $this->userId = null;
         $this->isEdit = false;
+        $this->showModal = true; // buka modal
     }
 
     public function save()
@@ -52,6 +52,7 @@ class ManageUsers extends Component
         }
 
         $this->resetForm();
+        $this->showModal = false;
     }
 
     public function edit($id)
@@ -64,6 +65,7 @@ class ManageUsers extends Component
         $this->role = $user->role;
         $this->status = $user->status;
         $this->isEdit = true;
+        $this->showModal = true;
     }
 
     public function toggleStatus($id)
