@@ -9,16 +9,10 @@ use Illuminate\Support\Facades\Auth;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, ...$roles): Response
+    public function handle(Request $request, Closure $next, string $role): Response
     {
-        // Cek kalau belum login
-        if (!Auth::check()) {
-            abort(403, 'Unauthorized.');
-        }
-
-        // Cek kalau role user tidak ada di daftar roles yang diizinkan
-        if (!in_array(Auth::user()->role, $roles)) {
-            abort(403, 'Unauthorized.');
+        if (Auth::check() && Auth::user()->role === $role) {
+            abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 
         return $next($request);

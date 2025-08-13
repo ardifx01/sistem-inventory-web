@@ -1,47 +1,45 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LogController;
-use App\Http\Controllers\BarangController;
-use App\Http\Controllers\RakController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\RackController;
+use App\Http\Controllers\BarangController;
+use App\Http\Controllers\KelolaAkunController;
+use Illuminate\Support\Facades\Route;
 
+// -------------------------
+// Halaman Utama
+// -------------------------
 Route::get('/', function () {
     return view('welcome');
 });
 
+// -------------------------
+// Dashboard
+// -------------------------
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    return view('layouts.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// -------------------------
+// Profil
+// -------------------------
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Route::get('/dashboard/superadmin', fn() => view('dashboard.superadmin'))
-//     ->middleware(['auth', 'role:superadmin'])
-//     ->name('dashboard.superadmin');
-
-// Route::get('/dashboard/admin', fn() => view('dashboard.admin'))
-//     ->middleware(['auth', 'role:admin'])
-//     ->name('dashboard.admin');
-
-// Route::get('/dashboard/user', fn() => view('dashboard.user'))
-//     ->middleware(['auth', 'role:user'])
-//     ->name('dashboard.user');
-
-Route::get('/dashboard', function () {
-    return view('layouts.dashboard'); // layouts/dashboard.blade.php
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware(['auth'])->group(function () {
+// -------------------------
+// Barang (Items)
+// -------------------------
+Route::middleware('auth')->group(function () {
     Route::get('/items', [ItemController::class, 'index'])->name('items.index');
-    
-    // Hanya admin & superadmin bisa CRUD
+
+    // CRUD khusus admin & superadmin
     Route::middleware('role:admin,superadmin')->group(function () {
         Route::get('/items/create', [ItemController::class, 'create'])->name('items.create');
         Route::post('/items', [ItemController::class, 'store'])->name('items.store');
@@ -49,16 +47,44 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
         Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
     });
-    // Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
 
-    Route::get('/daftar-barang', [BarangController::class, 'index'])->name('daftar-barang');
-    Route::get('/tatanan-rak', [RakController::class, 'index'])->name('tatanan-rak');
+// -------------------------
+// Kelola Akun (Superadmin Only)
+// -------------------------
+Route::middleware(['auth', 'can:superadmin-only'])->group(function () {
 
-    Route::middleware(['role:superadmin'])->group(function () {
-        Route::get('/aktifitas-log', [LogController::class, 'index'])->name('aktifitas-log');
-        Route::get('/kelola-akun', [UserController::class, 'manage'])->name('kelola-akun');
-    });
+    // Index / daftar akun
+    Route::get('/kelola-akun', [UserController::class, 'index'])->name('kelola-akun');
+
+    // Tambah akun baru
+    Route::get('/kelola-akun/tambah', [RegisteredUserController::class, 'create'])->name('kelola-akun.create');
+    Route::post('/kelola-akun/tambah', [RegisteredUserController::class, 'store'])->name('kelola-akun.store');
+
+    // Edit akun
+    Route::get('/kelola-akun/{id}/edit', [UserController::class, 'edit'])->name('kelola-akun.edit');
+    Route::put('/kelola-akun/{id}', [UserController::class, 'update'])->name('kelola-akun.update');
+
+    // Toggle status aktif/inaktif
+    Route::put('/kelola-akun/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('kelola-akun.toggle-status');
 });
 
 
+    
+// -------------------------
+// Menu Umum
+// -------------------------
+Route::get('/daftar-barang', [BarangController::class, 'index'])->name('daftar-barang');
+Route::get('/tatanan-rack', [RackController::class, 'index'])->name('tatanan-rack');
+
+Route::get('/aktifitas-log', [App\Http\Controllers\LogController::class, 'index'])
+    ->name('aktifitas-log');
+
+
+        Route::middleware(['auth', 'can:superadmin-only'])->group(function () {
+        Route::get('/log-aktivitas', [LogController::class, 'index'])->name('log-aktivitas');
+    });
+// -------------------------
+// Auth Routes
+// -------------------------
 require __DIR__.'/auth.php';
