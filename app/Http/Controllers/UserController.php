@@ -9,6 +9,6 @@ class UserController extends Controller
     public function manage()
     {
         $users = User::all();
-        return view('user.manage', compact('users'));
+        return view('livewire.manage-users', compact('users'));
     }
 }
