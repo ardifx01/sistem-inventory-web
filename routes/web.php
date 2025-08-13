@@ -8,7 +8,6 @@ use App\Http\Controllers\ItemController;
 use App\Http\Controllers\RackController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\KelolaAkunController;
-use App\Livewire\ManageUsers;
 use Illuminate\Support\Facades\Route;
 
 // -------------------------
@@ -51,40 +50,40 @@ Route::middleware('auth')->group(function () {
 });
 
 // -------------------------
-// Khusus Superadmin
+// Kelola Akun (Superadmin Only)
 // -------------------------
-  Route::middleware(['auth', 'superadmin'])->group(function () {
-        Route::get('/kelola-akun', ManageUsers::class)->name('kelola-akun');
-    });
+Route::middleware(['auth', 'can:superadmin-only'])->group(function () {
+
+    // Index / daftar akun
+    Route::get('/kelola-akun', [UserController::class, 'index'])->name('kelola-akun');
+
+    // Tambah akun baru
+    Route::get('/kelola-akun/tambah', [RegisteredUserController::class, 'create'])->name('kelola-akun.create');
+    Route::post('/kelola-akun/tambah', [RegisteredUserController::class, 'store'])->name('kelola-akun.store');
+
+    // Edit akun
+    Route::get('/kelola-akun/{id}/edit', [UserController::class, 'edit'])->name('kelola-akun.edit');
+    Route::put('/kelola-akun/{id}', [UserController::class, 'update'])->name('kelola-akun.update');
+
+    // Toggle status aktif/inaktif
+    Route::put('/kelola-akun/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('kelola-akun.toggle-status');
+});
 
 
-    Route::middleware(['auth', 'can:superadmin-only'])->group(function () {
-        Route::get('/kelola-akun/tambah', [RegisteredUserController::class, 'create'])
-            ->name('kelola-akun.create');
-
-        Route::post('/kelola-akun/tambah', [RegisteredUserController::class, 'store'])
-            ->name('kelola-akun.store');
-    });
-
-    Route::get('/kelola-akun/{id}/edit', [KelolaAkunController::class, 'edit'])->name('kelola-akun.edit');
-    Route::put('/kelola-akun/{id}', [KelolaAkunController::class, 'update'])->name('kelola-akun.update');
-
-    Route::get('/manage-users', \App\Livewire\ManageUsers::class)->name('livewire.manage-users');
-
-
-    Route::get('/aktifitas-log', [App\Http\Controllers\LogController::class, 'index'])
-    ->name('aktifitas-log');
-
-
-        Route::middleware(['auth', 'can:superadmin-only'])->group(function () {
-        Route::get('/log-aktivitas', [LogController::class, 'index'])->name('log-aktivitas');
-    });
+    
 // -------------------------
 // Menu Umum
 // -------------------------
 Route::get('/daftar-barang', [BarangController::class, 'index'])->name('daftar-barang');
 Route::get('/tatanan-rack', [RackController::class, 'index'])->name('tatanan-rack');
 
+Route::get('/aktifitas-log', [App\Http\Controllers\LogController::class, 'index'])
+    ->name('aktifitas-log');
+
+
+        Route::middleware(['auth', 'can:superadmin-only'])->group(function () {
+        Route::get('/log-aktivitas', [LogController::class, 'index'])->name('log-aktivitas');
+    });
 // -------------------------
 // Auth Routes
 // -------------------------

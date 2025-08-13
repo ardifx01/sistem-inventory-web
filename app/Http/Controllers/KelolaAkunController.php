@@ -8,6 +8,40 @@ use Illuminate\Support\Facades\Hash;
 
 class KelolaAkunController extends Controller
 {
+    public function index()
+    {
+        $users = User::orderBy('created_at', 'desc')->get();
+        return view('kelola-akun.index', compact('users'));
+    }
+
+    public function create()
+    {
+        return view('kelola-akun.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name'=>'required|string|max:255',
+            'email'=>'required|email|unique:users,email',
+            'username'=>'required|string|unique:users,username',
+            'password'=>'required|string|min:8|confirmed',
+            'role'=>'required|in:user,admin,superadmin',
+            'status'=>'required|in:active,inactive',
+        ]);
+
+        User::create([
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'username'=>$request->username,
+            'password'=>Hash::make($request->password),
+            'role'=>$request->role,
+            'status'=>$request->status,
+        ]);
+
+        return redirect()->route('kelola-akun')->with('message','Akun baru berhasil ditambahkan.');
+    }
+
     public function edit($id)
     {
         $user = User::findOrFail($id);
@@ -18,27 +52,42 @@ class KelolaAkunController extends Controller
     {
         $user = User::findOrFail($id);
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
-            'role' => 'required|in:user,admin,superadmin',
-            'status' => 'required|in:active,inactive',
-        ]);
+        if(auth()->user()->role === 'superadmin') {
+            // superadmin tidak bisa ubah email
+            $request->validate([
+                'name'=>'required|string|max:255',
+                'username'=>'required|string|unique:users,username,'.$user->id,
+                'role'=>'required|in:user,admin,superadmin',
+                'status'=>'required|in:active,inactive',
+                'password'=>'nullable|string|min:8|confirmed',
+            ]);
+        } else {
+            // user biasa bisa ubah email
+            $request->validate([
+                'name'=>'required|string|max:255',
+                'email'=>'required|email|unique:users,email,'.$user->id,
+                'username'=>'required|string|unique:users,username,'.$user->id,
+                'role'=>'required|in:user,admin,superadmin',
+                'status'=>'required|in:active,inactive',
+                'password'=>'nullable|string|min:8|confirmed',
+            ]);
+        }
 
         $user->name = $request->name;
         $user->username = $request->username;
-        $user->email = $request->email;
         $user->role = $request->role;
         $user->status = $request->status;
 
-        if ($request->filled('password')) {
+        if(auth()->user()->role !== 'superadmin') {
+            $user->email = $request->email; // hanya user biasa bisa update email
+        }
+
+        if($request->password){
             $user->password = Hash::make($request->password);
         }
 
         $user->save();
 
-        return redirect()->route('livewire.manage-users')->with('success', 'Akun berhasil diperbarui.');
+        return redirect()->route('kelola-akun')->with('message','Akun berhasil diperbarui.');
     }
 }

@@ -11,7 +11,7 @@ class RoleMiddleware
 {
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        if (Auth::check() && Auth::user()->role !== $role) {
+        if (Auth::check() && Auth::user()->role === $role) {
             abort(403, 'Anda tidak memiliki akses ke halaman ini.');
         }
 
