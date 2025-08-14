@@ -1,118 +1,145 @@
 @extends('layouts.app')
 
+@section('header')
+<h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+    {{ __('Edit Barang') }}
+</h2>
+@endsection
+
 @section('content')
-<div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-md">
+<div class="py-6">
+    <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
 
-    <h2 class="text-2xl font-bold mb-6">Edit Barang</h2>
+            <h2 class="text-2xl font-bold mb-4 text-center">Edit Barang</h2>
 
-    {{-- Notifikasi pesan sukses --}}
-    @if(session('success'))
-        <div class="bg-green-200 text-green-800 p-4 rounded mb-4">
-            {{ session('success') }}
+            {{-- Notifikasi sukses --}}
+            @if(session('success'))
+                <div class="bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200 p-4 rounded mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            {{-- Notifikasi error global --}}
+            @if ($errors->any())
+                <div class="bg-red-200 dark:bg-red-900 text-red-800 dark:text-red-200 p-4 rounded mb-4">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form action="{{ route('items.update', $item->id) }}" method="POST">
+                @csrf
+                @method('PUT')
+
+                {{-- Nama Barang --}}
+                <div>
+                    <x-input-label for="name" :value="__('Nama')" />
+                    <x-text-input id="name" class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                  type="text" name="name" value="{{ old('name', $item->name) }}"
+                                  required autofocus />
+                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                </div>
+
+                {{-- Kode Item --}}
+                <div class="mt-4">
+                    <x-input-label for="item_code" :value="__('Kode Item')" />
+                    <x-text-input id="item_code" class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                  type="text" name="item_code" value="{{ old('item_code', $item->item_code) }}"
+                                  required />
+                    <x-input-error :messages="$errors->get('item_code')" class="mt-2" />
+                </div>
+
+                {{-- Barcode --}}
+                <div class="mt-4">
+                    <x-input-label for="barcode" :value="__('Barcode')" />
+                    <div class="flex gap-2">
+                        <x-text-input id="barcode" class="block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                      type="text" name="barcode" value="{{ old('barcode', $item->barcode) }}" />
+                        <button type="button" id="start-scan"
+                            class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-md
+                                   font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-600
+                                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            Scan
+                        </button>
+                    </div>
+                    <div id="scanner-container" class="mt-3 hidden">
+                        <video id="preview" class="border rounded-lg w-full"></video>
+                    </div>
+                    <x-input-error :messages="$errors->get('barcode')" class="mt-2" />
+                </div>
+
+                {{-- Kategori --}}
+                <div class="mt-4">
+                    <x-input-label for="category_id" :value="__('Kategori')" />
+                    <select id="category_id" name="category_id"
+                            class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            required>
+                        <option value="">-- Pilih Kategori --</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ old('category_id', $item->category_id) == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
+                </div>
+
+                {{-- Lokasi Rak --}}
+                <div class="mt-4">
+                    <x-input-label for="rack_location" :value="__('Lokasi Rak (Opsional)')" />
+                    <x-text-input id="rack_location" class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                  type="text" name="rack_location" value="{{ old('rack_location', $item->rack_location) }}"
+                                  placeholder="Contoh: P01-01-02-01" />
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Jika kosong, otomatis akan menjadi <strong>ZIP</strong></p>
+                </div>
+
+                {{-- Tombol Aksi --}}
+                <div class="flex items-center justify-end mt-6 space-x-2">
+                    <a href="{{ route('items.index') }}"
+                       class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md
+                              font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-600
+                              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 mr-3">
+                        Kembali
+                    </a>
+                    <x-primary-button>
+                        {{ __('Update') }}
+                    </x-primary-button>
+                </div>
+
+            </form>
         </div>
-    @endif
-
-    {{-- Notifikasi error validasi global --}}
-    @if ($errors->any())
-        <div class="bg-red-200 text-red-800 p-4 rounded mb-4">
-            <ul class="list-disc list-inside">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <form action="{{ route('items.update', $item->id) }}" method="POST">
-        @csrf
-        @method('PUT')
-
-        {{-- Nama Barang --}}
-        <div class="mb-4">
-            <label class="block font-semibold mb-2">Nama Barang</label>
-            <input type="text" name="name" value="{{ old('name', $item->name) }}" 
-                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-            @error('name')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        {{-- Kode Item --}}
-        <div class="mb-4">
-            <label class="block font-semibold mb-2">Kode Item</label>
-            <input type="text" name="item_code" value="{{ old('item_code', $item->item_code) }}" 
-                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-            @error('item_code')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        {{-- Barcode --}}
-        <div class="mb-4">
-            <label class="block font-semibold mb-2">Barcode</label>
-            <div class="flex gap-2">
-                <input type="text" name="barcode" id="barcode" value="{{ old('barcode', $item->barcode) }}"
-                    class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                <button type="button" onclick="startScanner()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg">Scan</button>
-            </div>
-            @error('barcode')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
-            <video id="scanner" class="mt-3 w-full rounded-lg border hidden"></video>
-        </div>
-
-        {{-- Kategori --}}
-        <div class="mb-4">
-            <label class="block font-semibold mb-2">Kategori</label>
-            <select name="category_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                @foreach($categories as $category)
-                    <option value="{{ $category->id }}" {{ old('category_id', $item->category_id) == $category->id ? 'selected' : '' }}>
-                        {{ $category->name }}
-                    </option>
-                @endforeach
-            </select>
-            @error('category_id')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        {{-- Lokasi Rak --}}
-        <div class="mb-4">
-            <label class="block font-semibold mb-2">Lokasi Rak</label>
-            <input type="text" name="rack_location" value="{{ old('rack_location', $item->rack_location) }}"
-                class="w-full border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-            @error('rack_location')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        {{-- Tombol Aksi --}}
-        <div class="flex justify-between">
-            <a href="{{ route('items.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">Kembali</a>
-            <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg">Update Barang</button>
-        </div>
-    </form>
+    </div>
 </div>
 
-{{-- QR Scanner --}}
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+{{-- Script Barcode Scanner --}}
+<script src="https://unpkg.com/@zxing/library@latest"></script>
 <script>
-    function startScanner() {
-        const scanner = document.getElementById('scanner');
-        scanner.classList.remove('hidden');
+    const codeReader = new ZXing.BrowserMultiFormatReader();
+    const startScanBtn = document.getElementById('start-scan');
+    const previewElem = document.getElementById('preview');
+    const scannerContainer = document.getElementById('scanner-container');
+    const barcodeInput = document.getElementById('barcode');
 
-        const html5QrCode = new Html5Qrcode("scanner");
-        html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: 250 },
-            qrCodeMessage => {
-                document.getElementById('barcode').value = qrCodeMessage;
-                html5QrCode.stop();
-                scanner.classList.add('hidden');
-            }
-        ).catch(err => {
-            console.error(`QR Code start failed: ${err}`);
-        });
-    }
+    startScanBtn.addEventListener('click', async () => {
+        scannerContainer.classList.remove('hidden');
+        try {
+            const devices = await codeReader.listVideoInputDevices();
+            const selectedDeviceId = devices[0].deviceId;
+
+            codeReader.decodeFromVideoDevice(selectedDeviceId, previewElem, (result) => {
+                if (result) {
+                    barcodeInput.value = result.text;
+                    codeReader.reset();
+                    scannerContainer.classList.add('hidden');
+                }
+            });
+        } catch (error) {
+            console.error(error);
+        }
+    });
 </script>
 @endsection
