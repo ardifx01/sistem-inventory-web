@@ -98,6 +98,15 @@ class ItemController extends Controller
         return redirect()->route('items.index')->with('success', 'Barang berhasil diperbarui.');
     }
 
+    public function bulkDelete(Request $request)
+    {
+        $ids = explode(',', $request->ids);
+        Item::whereIn('id', $ids)->delete();
+        return redirect()->route('items.index')->with('success', 'Barang terpilih berhasil dihapus');
+    }
+
+
+
     public function destroy(Item $item)
     {
         $item->delete();

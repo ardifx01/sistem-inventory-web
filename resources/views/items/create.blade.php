@@ -1,97 +1,121 @@
 @extends('layouts.app')
 
+@section('header')
+<h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+    {{ __('Tambah Barang') }}
+</h2>
+@endsection
+
 @section('content')
-<div class="container mx-auto p-6">
+<div class="py-6">
+    <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+        <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
 
-    <h2 class="text-2xl font-bold mb-4 text-white">Tambah Barang</h2>
+            {{-- Notifikasi sukses --}}
+            @if(session('success'))
+                <div class="bg-green-200 text-green-800 p-4 rounded mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
 
-    {{-- Notifikasi pesan sukses --}}
-    @if(session('success'))
-        <div class="bg-green-200 text-green-800 p-4 rounded mb-4">
-            {{ session('success') }}
+            {{-- Notifikasi error global --}}
+            @if ($errors->any())
+                <div class="bg-red-200 text-red-800 p-4 rounded mb-4">
+                    <ul class="list-disc list-inside">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <h2 class="text-2xl font-bold mb-4 text-center">Tambah Barang</h2>
+
+            <form method="POST" action="{{ route('items.store') }}">
+
+                
+                @csrf
+
+                {{-- Nama Barang --}}
+                <div>
+                    <x-input-label for="name" :value="__('Nama')" />
+                    <x-text-input id="name" class="block mt-1 w-full"
+                                  type="text" name="name" value="{{ old('name') }}"
+                                  required autofocus />
+                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                </div>
+
+                {{-- Kode Item --}}
+                <div class="mt-4">
+                    <x-input-label for="item_code" :value="__('Kode Item')" />
+                    <x-text-input id="item_code" class="block mt-1 w-full"
+                                  type="text" name="item_code" value="{{ old('item_code') }}"
+                                  required />
+                    <x-input-error :messages="$errors->get('item_code')" class="mt-2" />
+                </div>
+
+                {{-- Barcode --}}
+                <div class="mt-4">
+                    <x-input-label for="barcode" :value="__('Barcode')" />
+                    <div class="flex gap-2">
+                        <x-text-input id="barcode" class="block w-full"
+                                      type="text" name="barcode" value="{{ old('barcode') }}" />
+                        <button type="button" id="start-scan"
+                            class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-md
+                                   font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-600
+                                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+                            Scan
+                        </button>
+                    </div>
+                    <div id="scanner-container" class="mt-3 hidden">
+                        <video id="preview" class="border rounded-lg w-full"></video>
+                    </div>
+                    <x-input-error :messages="$errors->get('barcode')" class="mt-2" />
+                </div>
+
+                {{-- Kategori --}}
+                <div class="mt-4">
+                    <x-input-label for="category_id" :value="__('Kategori')" />
+                    <select id="category_id" name="category_id"
+                            class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700
+                                   dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500
+                                   focus:ring-indigo-500"
+                            required>
+                        <option value="">-- Pilih Kategori --</option>
+                        @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
+                </div>
+
+                {{-- Lokasi Rak --}}
+                <div class="mt-4">
+                    <x-input-label for="rack_location" :value="__('Lokasi Rak (Opsional)')" />
+                    <x-text-input id="rack_location" class="block mt-1 w-full"
+                                  type="text" name="rack_location" value="{{ old('rack_location') }}"
+                                  placeholder="Contoh: P01-01-02-01" />
+                    <p class="text-sm text-gray-500 mt-1">Jika kosong, otomatis akan menjadi <strong>ZIP</strong></p>
+                </div>
+
+                {{-- Tombol Aksi --}}
+                <div class="flex items-center justify-end mt-6 space-x-2">
+                    <a href="{{ route('items.index') }}"
+                       class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md
+                              font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-600
+                              focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 mr-3">
+                        Kembali
+                    </a>
+                    <x-primary-button>
+                        {{ __('Tambah') }}
+                    </x-primary-button>
+                </div>
+
+            </form>
         </div>
-    @endif
-
-    {{-- Notifikasi error validasi global --}}
-    @if ($errors->any())
-        <div class="bg-red-200 text-red-800 p-4 rounded mb-4">
-            <ul class="list-disc list-inside">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <form method="POST" action="{{ route('items.store') }}" class="bg-white p-6 rounded-lg shadow-lg space-y-4">
-        @csrf
-
-        {{-- Nama Barang --}}
-        <div>
-            <label class="block mb-1 font-semibold">Nama</label>
-            <input type="text" name="name" value="{{ old('name') }}" 
-                class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" required>
-            @error('name')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        {{-- Kode Item --}}
-        <div>
-            <label class="block mb-1 font-semibold">Kode Item</label>
-            <input type="text" name="item_code" value="{{ old('item_code') }}" 
-                class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" required>
-            @error('item_code')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        {{-- Barcode --}}
-        <div>
-            <label class="block mb-1 font-semibold">Barcode</label>
-            <div class="flex gap-2">
-                <input type="text" id="barcode" name="barcode" value="{{ old('barcode') }}"
-                    class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-                <button type="button" id="start-scan" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Scan</button>
-            </div>
-            <div id="scanner-container" class="mt-3 hidden">
-                <video id="preview" class="border rounded-lg w-full"></video>
-            </div>
-            @error('barcode')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        {{-- Kategori --}}
-        <div>
-            <label class="block mb-1 font-semibold">Kategori</label>
-            <select name="category_id" class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500" required>
-                <option value="">-- Pilih Kategori --</option>
-                @foreach($categories as $category)
-                    <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                        {{ $category->name }}
-                    </option>
-                @endforeach
-            </select>
-            @error('category_id')
-                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
-        {{-- Lokasi Rak --}}
-        <div>
-            <label class="block mb-1 font-semibold">Lokasi Rak (Opsional)</label>
-            <input type="text" name="rack_location" value="{{ old('rack_location') }}" placeholder="Contoh: P01-01-02-01" 
-                class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
-            <p class="text-sm text-gray-500 mt-1">Jika kosong, otomatis akan menjadi <strong>ZIP</strong></p>
-        </div>
-
-        {{-- Tombol Aksi --}}
-        <div class="flex justify-between">
-            <a href="{{ route('items.index') }}" class="bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600">Kembali</a>
-            <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">Simpan</button>
-        </div>
-    </form>
+    </div>
 </div>
 
 {{-- Script Barcode Scanner --}}

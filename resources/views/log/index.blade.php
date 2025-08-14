@@ -16,21 +16,12 @@
     @endif
 
     <div class="mb-4 flex gap-2">
-        {{-- Hapus semua log --}}
-        {{-- <form action="{{ route('aktifitas-log.clear') }}" method="POST" onsubmit="return confirm('Hapus semua log?')">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 shadow">
-                Hapus Semua Log
-            </button>
-        </form> --}}
-
         {{-- Hapus yang dipilih --}}
         <form id="bulkDeleteForm" action="{{ route('aktifitas-log.bulk-destroy') }}" method="POST" onsubmit="return confirm('Hapus log yang dipilih?')">
             @csrf
             @method('DELETE')
             <input type="hidden" name="ids" id="bulkDeleteIds">
-            <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-yellow-700 shadow">
+            <button id="bulkDeleteBtn" type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-yellow-700 shadow hidden">
                 Hapus Log
             </button>
         </form>
@@ -90,12 +81,26 @@
 
 {{-- Script untuk checkbox --}}
 <script>
-    document.getElementById('selectAll').addEventListener('change', function() {
+    const selectAll = document.getElementById('selectAll');
+    const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+
+    function toggleDeleteButton() {
+        const anyChecked = document.querySelectorAll('.selectItem:checked').length > 0;
+        bulkDeleteBtn.classList.toggle('hidden', !anyChecked);
+    }
+
+    selectAll.addEventListener('change', function() {
         const checked = this.checked;
         document.querySelectorAll('.selectItem').forEach(cb => cb.checked = checked);
+        toggleDeleteButton();
     });
 
-    document.getElementById('bulkDeleteForm').addEventListener('submit', function(e) {
+    document.querySelectorAll('.selectItem').forEach(cb => {
+        cb.addEventListener('change', toggleDeleteButton);
+    });
+
+    bulkDeleteForm.addEventListener('submit', function(e) {
         const ids = Array.from(document.querySelectorAll('.selectItem:checked')).map(cb => cb.value);
         if (ids.length === 0) {
             e.preventDefault();

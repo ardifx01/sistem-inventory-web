@@ -13,7 +13,7 @@ class GlobalActivityLogObserver
             ->performedOn($model)      // objek yang diubah
             ->withProperties($model->getAttributes()) // data objek
             ->log('Menambahkan ' . class_basename($model));
-    }
+    }   
 
     public function updated(Model $model)
     {

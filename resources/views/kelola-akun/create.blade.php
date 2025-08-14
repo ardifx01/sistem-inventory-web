@@ -11,6 +11,8 @@
     <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
             
+            <h2 class="text-2xl font-bold mb-4 text-center">Tambah Akun</h2>
+
             <form method="POST" action="{{ route('kelola-akun.store') }}">
                 @csrf
 
