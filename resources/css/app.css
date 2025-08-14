@@ -1,3 +1,54 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ==== GLOBAL STYLE UNTUK DARK & LIGHT MODE ==== */
+
+/* Background & teks halaman */
+body {
+    @apply bg-background-light text-text-light dark:bg-background-dark dark:text-text-dark;
+}
+
+/* Card umum */
+.card {
+    @apply bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg shadow;
+}
+
+/* Table umum */
+.table {
+    @apply border border-border-light dark:border-border-dark w-full text-sm;
+}
+
+.table th {
+    @apply bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 border border-border-light dark:border-border-dark px-4 py-2;
+}
+
+.table td {
+    @apply border border-border-light dark:border-border-dark px-4 py-2 text-gray-800 dark:text-gray-200;
+}
+
+/* Hover row */
+.table tr:hover {
+    @apply bg-gray-50 dark:bg-gray-700;
+}
+
+/* Tombol umum */
+.btn {
+    @apply px-4 py-2 rounded shadow text-white;
+}
+
+.btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700;
+}
+
+.btn-warning {
+    @apply bg-yellow-500 hover:bg-yellow-600;
+}
+
+.btn-danger {
+    @apply bg-red-500 hover:bg-red-600;
+}
+
+.btn-success {
+    @apply bg-green-500 hover:bg-green-600;
+}
