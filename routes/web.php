@@ -7,9 +7,13 @@ use App\Http\Controllers\LogController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\RackController;
 use App\Http\Controllers\BarangController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KelolaAkunController;
 use Illuminate\Support\Facades\Route;
 use Spatie\Activitylog\Facades\LogBatch;
+use App\Models\Item;
+use App\Models\Category;
+
 
 // -------------------------
 // Halaman Utama
@@ -22,8 +26,39 @@ Route::get('/', function () {
 // Dashboard
 // -------------------------
 Route::get('/dashboard', function () {
-    return view('layouts.dashboard');
+    // 1. Total Barang
+    $totalBarang = Item::count();
+
+    // 2. Total Kategori
+    $totalKategori = Category::count();
+
+    // 3. Total Rak (prefix sebelum "-")
+    $totalRak = Item::whereNotNull('rack_location')
+                    ->where('rack_location', '!=', '')
+                    ->where('rack_location', '!=', 'ZIP')
+                    ->selectRaw("DISTINCT SUBSTRING_INDEX(rack_location, '-', 1) as rak_prefix")
+                    ->get()
+                    ->count();
+
+    // 4. Barang Belum Masuk Rak
+    $belumMasukRak = Item::where('rack_location', 'ZIP')->count();
+
+    // 5. Barang Baru (4 item terakhir, hanya kolom tertentu)
+    $barangBaru = Item::select('name', 'item_code', 'rack_location')
+                      ->latest()
+                      ->take(8)
+                      ->get();
+
+    return view('layouts.dashboard', compact(
+        'totalBarang',
+        'totalKategori',
+        'totalRak',
+        'belumMasukRak',
+        'barangBaru'
+    ));
 })->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/barang-baru', [DashboardController::class, 'getBarangBaru']);
+
 
 // -------------------------
 // Profil
@@ -85,6 +120,7 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
 // -------------------------
 Route::get('/daftar-barang', [BarangController::class, 'index'])->name('daftar-barang');
 Route::get('/tatanan-rack', [RackController::class, 'index'])->name('tatanan-rack');
+
 
 
 
