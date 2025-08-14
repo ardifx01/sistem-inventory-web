@@ -18,7 +18,7 @@
         {{-- Dropdown Kategori --}}
         <select name="category_id" 
                 onchange="this.form.submit()" {{-- ✅ Auto-submit saat pilih kategori --}}
-                class="px-2 py-2 border rounded-lg">
+                class="px-2 py-2 border rounded-lg text-black">
             <option value="">-- Semua Kategori --</option>
             @foreach($categories as $category)
                 <option value="{{ $category->id }}" {{ request('category_id') == $category->id ? 'selected' : '' }}>
