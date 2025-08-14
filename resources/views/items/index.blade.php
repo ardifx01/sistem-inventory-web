@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mx-auto p-4">
-    <h2 class="text-2xl font-bold mb-4 text-white">Daftar Barang</h2>
+    <h2 class="text-2xl font-bold mb-4 ">Daftar Barang</h2>
 
     {{-- Search & Filter --}}
     {{-- Dibungkus form GET agar terhubung ke ItemController@index --}}

@@ -83,6 +83,13 @@
                 </div>
 
                 <div class="flex items-center justify-end mt-6">
+                        <!-- Tombol Kembali -->
+                    <a href="{{ url('/kelola-akun') }}"
+                    class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md
+                            font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-600
+                            focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400 mr-3 ">
+                        Kembali
+                    </a>
                     <x-primary-button>
                         {{ __('Simpan Perubahan') }}
                     </x-primary-button>

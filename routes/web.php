@@ -9,6 +9,7 @@ use App\Http\Controllers\RackController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\KelolaAkunController;
 use Illuminate\Support\Facades\Route;
+use Spatie\Activitylog\Facades\LogBatch;
 
 // -------------------------
 // Halaman Utama
@@ -58,8 +59,8 @@ Route::middleware(['auth', 'can:superadmin-only'])->group(function () {
     Route::get('/kelola-akun', [UserController::class, 'index'])->name('kelola-akun');
 
     // Tambah akun baru
-    Route::get('/kelola-akun/tambah', [RegisteredUserController::class, 'create'])->name('kelola-akun.create');
-    Route::post('/kelola-akun/tambah', [RegisteredUserController::class, 'store'])->name('kelola-akun.store');
+    Route::get('/kelola-akun/tambah', [UserController::class, 'create'])->name('kelola-akun.create');
+    Route::post('/kelola-akun/tambah', [UserController::class, 'store'])->name('kelola-akun.store');
 
     // Edit akun
     Route::get('/kelola-akun/{id}/edit', [UserController::class, 'edit'])->name('kelola-akun.edit');
@@ -69,16 +70,22 @@ Route::middleware(['auth', 'can:superadmin-only'])->group(function () {
     Route::put('/kelola-akun/{id}/toggle-status', [UserController::class, 'toggleStatus'])->name('kelola-akun.toggle-status');
 });
 
-
-    
+// -------------------------
+// ActivityLogs
+// -------------------------
+Route::middleware(['auth', 'role:superadmin'])->group(function () {
+    Route::get('/aktifitas-log', [LogController::class, 'index'])->name('aktifitas-log');
+    Route::delete('/aktifitas-log/{id}', [LogController::class, 'destroy'])->name('aktifitas-log.destroy');
+    Route::delete('/aktifitas-log', [LogController::class, 'clearAll'])->name('aktifitas-log.clear');
+    Route::delete('/aktifitas-log/bulk-destroy', [LogController::class, 'bulkDestroy'])->name('aktifitas-log.bulk-destroy');
+});
 // -------------------------
 // Menu Umum
 // -------------------------
 Route::get('/daftar-barang', [BarangController::class, 'index'])->name('daftar-barang');
 Route::get('/tatanan-rack', [RackController::class, 'index'])->name('tatanan-rack');
 
-Route::get('/aktifitas-log', [App\Http\Controllers\LogController::class, 'index'])
-    ->name('aktifitas-log');
+
 
 
         Route::middleware(['auth', 'can:superadmin-only'])->group(function () {
