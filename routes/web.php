@@ -19,46 +19,17 @@ use App\Models\Category;
 // Halaman Utama
 // -------------------------
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 // -------------------------
 // Dashboard
 // -------------------------
-Route::get('/dashboard', function () {
-    // 1. Total Barang
-    $totalBarang = Item::count();
 
-    // 2. Total Kategori
-    $totalKategori = Category::count();
-
-    // 3. Total Rak (prefix sebelum "-")
-    $totalRak = Item::whereNotNull('rack_location')
-                    ->where('rack_location', '!=', '')
-                    ->where('rack_location', '!=', 'ZIP')
-                    ->selectRaw("DISTINCT SUBSTRING_INDEX(rack_location, '-', 1) as rak_prefix")
-                    ->get()
-                    ->count();
-
-    // 4. Barang Belum Masuk Rak
-    $belumMasukRak = Item::where('rack_location', 'ZIP')->count();
-
-    // 5. Barang Baru (4 item terakhir, hanya kolom tertentu)
-    $barangBaru = Item::select('name', 'item_code', 'rack_location')
-                      ->latest()
-                      ->take(8)
-                      ->get();
-
-    return view('layouts.dashboard', compact(
-        'totalBarang',
-        'totalKategori',
-        'totalRak',
-        'belumMasukRak',
-        'barangBaru'
-    ));
-})->middleware(['auth', 'verified'])->name('dashboard');
-Route::get('/barang-baru', [DashboardController::class, 'getBarangBaru']);
-
+Route::middleware(['auth', 'verified'])->group(function(){
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/barang-baru', [DashboardController::class, 'getBarangBaru']);
+});
 
 // -------------------------
 // Profil
@@ -121,13 +92,6 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
 Route::get('/daftar-barang', [BarangController::class, 'index'])->name('daftar-barang');
 Route::get('/tatanan-rack', [RackController::class, 'index'])->name('tatanan-rack');
 
-
-
-
-
-        Route::middleware(['auth', 'can:superadmin-only'])->group(function () {
-        Route::get('/log-aktivitas', [LogController::class, 'index'])->name('log-aktivitas');
-    });
 // -------------------------
 // Auth Routes
 // -------------------------
