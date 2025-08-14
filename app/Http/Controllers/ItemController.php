@@ -24,7 +24,14 @@ class ItemController extends Controller
         // Filter kategori
         if ($request->has('category_id') && !empty($request->category_id)) {
             $query->where('category_id', $request->category_id);
-}
+        }
+
+        if ($request->boolean('zip_only')) {
+            $query->where(function ($q) {
+                $q->whereNull('rack_location')
+                  ->orWhere('rack_location', 'ZIP');
+            });
+        }
 
         $items = $query->latest()->paginate(10);
         $categories = Category::all();
