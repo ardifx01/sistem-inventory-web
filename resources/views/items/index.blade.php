@@ -12,7 +12,6 @@
     <form method="GET" action="{{ route('items.index') }}" id="searchForm"
           class="bg-white/5 backdrop-blur rounded-xl border border-white/10 p-4 sm:p-5">
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center">
-
             {{-- Search input --}}
             <div class="md:col-span-6 lg:col-span-7 order-1">
                 <label for="search" class="sr-only">Pencarian</label>
