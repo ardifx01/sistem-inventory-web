@@ -6,7 +6,15 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800 dark:text-gray-200" />
+                        <!-- Logo untuk Light Mode -->
+                        <img src="{{ asset('images/logo-light.png') }}" 
+                             alt="Logo" 
+                             class="block h-12 w-auto dark:hidden" />
+
+                        <!-- Logo untuk Dark Mode -->
+                        <img src="{{ asset('images/logo-dark.png') }}" 
+                             alt="Logo" 
+                             class="hidden h-12 w-auto dark:block" />
                     </a>
                 </div>
 
@@ -90,7 +98,6 @@
 
             <!-- Hamburger for mobile -->
             <div class="-me-2 flex items-center sm:hidden">
-            <!-- Tombol Toggle Dark/Light (Responsive) -->
                 <div class="">
                     <button id="theme-toggle-mobile" class="w-full flex items-center justify-center p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
                         <svg id="theme-toggle-light-icon-mobile" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -118,7 +125,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
@@ -149,7 +156,6 @@
                 <div class="font-medium text-base text-gray-800 dark:text-gray-200">{{ Auth::user()->name }}</div>
                 <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
             </div>
-
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
