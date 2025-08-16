@@ -92,6 +92,7 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
 Route::get('/daftar-barang', [BarangController::class, 'index'])->name('daftar-barang');
 Route::get('/tatanan-rack', [RackController::class, 'index'])->name('tatanan-rack');
 
+
 // -------------------------
 // Auth Routes
 // -------------------------
