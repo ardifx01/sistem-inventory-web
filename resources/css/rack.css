@@ -1,0 +1,62 @@
+.rack {
+    display: flex;
+    flex-direction: column-reverse;
+    border: 3px solid #444;
+    border-radius: 12px;
+    overflow: hidden;
+    width: fit-content;
+    margin: auto;
+}
+.rack-level {
+    display: grid;
+    gap: 6px;
+    padding: 6px;
+    border-top: 2px solid #666;
+    background: #f3f4f6;
+}
+.rack.pieces .rack-level {
+    grid-template-columns: repeat(6, 40px);
+    background: #dbeafe;
+}
+.rack.bulky .rack-level {
+    grid-template-columns: repeat(3, 80px);
+    background: #ffedd5;
+}
+.rack.lower .rack-level {
+    grid-template-columns: repeat(4, 60px);
+    background: #dcfce7;
+}
+
+.slot {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid #888;
+    background: white;
+    transition: all 0.2s;
+}
+.slot:hover {
+    transform: scale(1.05);
+}
+.rack.pieces .slot {
+    background: #3b82f6;
+    color: white;
+}
+.rack.bulky .slot {
+    background: #f97316;
+    color: black;
+}
+.rack.lower .slot {
+    background: #22c55e;
+    color: black;
+}
+
+.slot.selected {
+    outline: 3px solid #facc15;
+    outline-offset: 2px;
+}
