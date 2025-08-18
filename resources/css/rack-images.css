@@ -1,0 +1,28 @@
+.rack-image {
+    display: block;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+.rack-image.pieces {
+    width: 780px;
+    height: 500px;
+}
+
+.rack-image.bulky {
+    width: 600px;
+    height: 400px;
+}
+
+.rack-image.lower {
+    width: 500px;
+    height: 300px;
+}
+
+/* Responsif untuk layar kecil */
+@media (max-width: 768px) {
+    .rack-image {
+        width: 100%;
+        height: auto;
+    }
+}

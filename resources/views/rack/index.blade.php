@@ -44,19 +44,19 @@
             </div>
         </div>
 
-       {{-- Mockup Gambar Rak --}}
+        {{-- Mockup Gambar Rak --}}
         <div class="flex justify-center">
             <template x-if="category === 'pieces'">
-                <img src="/images/tatanan-rack.png" class="w-full max-w-md h-auto" alt="Rack Pieces">
+                <img src="/images/tatanan-rack.png" class="rack-image" alt="Rack Pieces">
             </template>
             <template x-if="category === 'bulky'">
-                <img src="/images/tatanan-rack.png" class="w-full max-w-md h-auto" alt="Rack Bulky">
+                <img src="/images/tatanan-rack.png" class="rack-image" alt="Rack Bulky">
             </template>
             <template x-if="category === 'lower'">
-                <img src="/images/tatanan-rack.png" class="w-full max-w-md h-auto" alt="Rack Lower">
+                <img src="/images/tatanan-rack.png" class="rack-image" alt="Rack Lower">
             </template>
         </div>
-
+        
         {{-- Grid Rak --}}
         <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             @for($col=1; $col <= $columns; $col++)
@@ -114,11 +114,6 @@
 </div>
 @endsection
 
-
 @push('styles')
-<link rel="stylesheet" href="{{ asset('css/rack.css') }}">
-@endpush
-
-@push('scripts')
-<script src="{{ asset('js/rack.js') }}"></script>
+<link rel="stylesheet" href="{{ asset('css/rack-images.css') }}">
 @endpush
