@@ -133,7 +133,7 @@
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     {{ __('Dashboard') }}
                 </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('daftar-barang')" :active="request()->routeIs('daftar-barang')">
+                <x-responsive-nav-link :href="route('items.index')" :active="request()->routeIs('daftar-barang')">
                     {{ __('Daftar Barang') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('tatanan-rack')" :active="request()->routeIs('tatanan-rak')">

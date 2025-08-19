@@ -89,7 +89,6 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
 // -------------------------
 // Menu Umum
 // -------------------------
-Route::get('/daftar-barang', [BarangController::class, 'index'])->name('daftar-barang');
 Route::get('/tatanan-rack', [RackController::class, 'index'])->name('tatanan-rack');
 
 // -------------------------

@@ -7,11 +7,24 @@ use Illuminate\Http\Request;
 
 class LogController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $logs = Activity::latest()->paginate(20); // tampilkan 20 per halaman
+        $logs = Activity::with('causer')
+            ->when($request->tanggal, function ($query) use ($request) {
+                $query->whereDate('created_at', $request->tanggal);
+            })
+            ->when($request->username, function ($query) use ($request) {
+                $query->whereHas('causer', function ($subQuery) use ($request) {
+                    $subQuery->where('username', 'like', '%' . $request->username . '%');
+                });
+            })
+            ->latest()
+            ->paginate(20);
+
         return view('log.index', compact('logs'));
     }
+
+
 
     public function destroy($id)
     {
@@ -27,12 +40,4 @@ class LogController extends Controller
         }
         return redirect()->route('aktifitas-log')->with('message', 'Log terpilih berhasil dihapus.');
     }
-
-
-    // public function clearAll()
-    // {
-    //     Activity::truncate();
-    //     return redirect()->route('aktifitas-log')->with('message', 'Semua log berhasil dihapus.');
-    // }
 }
-

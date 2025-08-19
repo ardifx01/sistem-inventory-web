@@ -36,14 +36,25 @@
                 </div>
 
                 <!-- Email -->
-                <!-- Email -->
                 <div class="mt-4">
                     <x-input-label for="email" :value="__('Email')" />
-                    <x-text-input id="email" class="block mt-1 w-full bg-gray-100 cursor-not-allowed"
-                                type="email" name="email"
-                                value=" {{ $user->email }}"
-                                readonly />
-                    {{-- <p class="text-gray-500 text-sm mt-1">Email tidak dapat diubah.</p>     --}}
+
+                    @if($user->role === 'superadmin')
+                        <!-- Superadmin: Email bisa diubah -->
+                        <x-text-input id="email" class="block mt-1 w-full"
+                                    type="email" name="email"
+                                    value="{{ old('email', $user->email) }}"
+                                    required />
+                    @else
+                        <!-- Selain superadmin: Email terkunci -->
+                        <x-text-input id="email" class="block mt-1 w-full bg-gray-100 cursor-not-allowed"
+                                    type="email" name="email"
+                                    value="{{ old('email', $user->email) }}"
+                                    readonly />
+                        <input type="hidden" name="email" value="{{ $user->email }}">
+                    @endif
+
+                    <x-input-error :messages="$errors->get('email')" class="mt-2" />
                 </div>
 
 
@@ -64,24 +75,35 @@
                 </div>
 
                 <!-- Role -->
-                <div class="mt-4">
-                    <x-input-label for="role" :value="__('Role')" />
-                    <select id="role" name="role" class="text-black block mt-1 w-full rounded-md border-gray-300 shadow-sm">
-                        <option value="user" {{ $user->role=='user' ? 'selected' : '' }}>User</option>
-                        <option value="admin" {{ $user->role=='admin' ? 'selected' : '' }}>Admin</option>
-                    </select>
-                    <x-input-error :messages="$errors->get('role')" class="mt-2" />
-                </div>
+                @if($user->id !== auth()->id() || $user->role !== 'superadmin')
+                    <div class="mt-4">
+                        <x-input-label for="role" :value="__('Role')" />
+                        <select id="role" name="role" class="text-black block mt-1 w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="user" {{ $user->role=='user' ? 'selected' : '' }}>User</option>
+                            <option value="admin" {{ $user->role=='admin' ? 'selected' : '' }}>Admin</option>
+                            <option value="superadmin" {{ $user->role=='superadmin' ? 'selected' : '' }}>Superadmin</option>
+                        </select>
+                        <x-input-error :messages="$errors->get('role')" class="mt-2" />
+                    </div>
+                @else
+                    <!-- Kalau superadmin edit dirinya sendiri, role tidak bisa diubah -->
+                    <input type="hidden" name="role" value="{{ $user->role }}">
+                @endif
 
                 <!-- Status -->
-                <div class="mt-4">
-                    <x-input-label for="status" :value="__('Status')" />
-                    <select id="status" name="status" class="text-black     block mt-1 w-full rounded-md border-gray-300 shadow-sm">
-                        <option value="active" {{ $user->status=='active' ? 'selected' : '' }}>Active</option>
-                        <option value="inactive" {{ $user->status=='inactive' ? 'selected' : '' }}>Inactive</option>
-                    </select>
-                    <x-input-error :messages="$errors->get('status')" class="mt-2" />
-                </div>
+                @if($user->id !== auth()->id() || $user->role !== 'superadmin')
+                    <div class="mt-4">
+                        <x-input-label for="status" :value="__('Status')" />
+                        <select id="status" name="status" class="text-black block mt-1 w-full rounded-md border-gray-300 shadow-sm">
+                            <option value="active" {{ $user->status=='active' ? 'selected' : '' }}>Active</option>
+                            <option value="inactive" {{ $user->status=='inactive' ? 'selected' : '' }}>Inactive</option>
+                        </select>
+                        <x-input-error :messages="$errors->get('status')" class="mt-2" />
+                    </div>
+                @else
+                    <!-- Status dikunci -->
+                    <input type="hidden" name="status" value="{{ $user->status }}">
+                @endif
 
                 <div class="flex items-center justify-end mt-6">
                         <!-- Tombol Kembali -->

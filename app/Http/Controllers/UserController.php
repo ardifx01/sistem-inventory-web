@@ -39,12 +39,40 @@ class UserController extends Controller
         return redirect()->route('kelola-akun')->with('message', 'Akun baru berhasil ditambahkan.');
     }
 
-    // Tampilkan daftar akun
-    public function index()
-    {
-        $users = User::orderBy('created_at', 'desc')->get();
-        return view('kelola-akun.index', compact('users'));
+// Tampilkan daftar akun
+public function index(Request $request)
+{
+    $query = User::orderBy('created_at', 'desc');
+
+    // Filter pencarian jika ada input
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('username', 'like', "%{$search}%");
+        });
     }
+
+    // Filter role
+    if ($request->filled('role')) {
+        $query->where('role', $request->role);
+    }
+
+    // Filter status
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // Pagination, 10 data per halaman
+    $users = $query->paginate(10);
+
+    // Pastikan semua filter ikut saat pindah halaman
+    $users->appends($request->only(['search', 'role', 'status']));
+
+    return view('kelola-akun.index', compact('users'));
+}
+
+
 
     // Tampilkan form edit
     public function edit($id)
@@ -68,12 +96,20 @@ class UserController extends Controller
         ]);
 
         $user->name = $request->name;
-        $user->email = $request->email;
         $user->username = $request->username;
-        $user->role = $request->role;
-        $user->status = $request->status;
 
-        if($request->password) {
+        // Hanya superadmin yang boleh mengubah email-nya
+        if ($user->role === 'superadmin') {
+            $user->email = $request->email;
+        }
+
+        // Superadmin tidak bisa ubah role atau status dirinya sendiri
+        if (!($user->id === auth()->id() && $user->role === 'superadmin')) {
+            $user->role = $request->role;
+            $user->status = $request->status;
+        }
+
+        if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
 
@@ -81,6 +117,8 @@ class UserController extends Controller
 
         return redirect()->route('kelola-akun')->with('message', 'Akun berhasil diperbarui.');
     }
+
+
 
     // Toggle status aktif/inaktif
     public function toggleStatus($id)
