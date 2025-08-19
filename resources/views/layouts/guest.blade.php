@@ -15,35 +15,54 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans text-gray-900 antialiased bg-gray-100 dark:bg-gray-900">
-    <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
 
-        <!-- Form Card -->
-        <div class="w-full sm:max-w-md mt-6 px-6 py-4 bg-white dark:bg-gray-800 shadow-md overflow-hidden sm:rounded-lg">
+    <!-- Wrapper background -->
+    <div class="min-h-screen flex flex-col bg-cover bg-center relative"
+         style="background-image: url('{{ asset('images/background.png') }}');">
+
+        <!-- Overlay hitam transparan -->
+        <div class="absolute inset-0 bg-black/50"></div>
+
+        <!-- Wrapper isi -->
+        <div class="flex flex-1 items-center justify-end pr-12 relative z-10">
             
-            <!-- Logo + Toggle -->
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <img src="{{ asset('images/logo-light.png') }}" alt="Logo" class="block dark:hidden w-32">
-                    <img src="{{ asset('images/logo-dark.png') }}" alt="Logo" class="hidden dark:block w-32">
+            <!-- Form Card (pakai style dari code 2) -->
+            <div class="relative w-full max-w-md px-6 py-8 
+                        bg-white/80 dark:bg-gray-800/80 backdrop-blur-md 
+                        shadow-xl rounded-2xl">
+                
+                <!-- Logo + Toggle -->
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <img src="{{ asset('images/logo-light.png') }}" alt="Logo" class="block dark:hidden w-32">
+                        <img src="{{ asset('images/logo-dark.png') }}" alt="Logo" class="hidden dark:block w-32">
+                    </div>
+
+                    <!-- Tombol Toggle Dark/Light -->
+                    <button id="theme-toggle-login" 
+                        class="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg id="theme-toggle-light-icon-login" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 3.75a6.25 6.25 0 100 12.5 6.25 6.25 0 000-12.5zM10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15.75a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM3.22 3.22a.75.75 0 011.06 0l1.06 1.06a.75.75 0 11-1.06 1.06L3.22 4.28a.75.75 0 010-1.06zM14.66 14.66a.75.75 0 011.06 0l1.06 1.06a.75.75 0 11-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zM2 10a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 012 10zM15.75 9.25h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 010-1.5zM4.28 15.72a.75.75 0 010-1.06l1.06-1.06a.75.75 0 111.06 1.06L5.34 15.72a.75.75 0 01-1.06 0zM14.66 5.34a.75.75 0 010-1.06l1.06-1.06a.75.75 0 011.06 1.06l-1.06 1.06a.75.75 0 01-1.06 0z"/>
+                        </svg>
+                        <svg id="theme-toggle-dark-icon-login" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8 8 0 1010.586 10.586z"/>
+                        </svg>
+                    </button>
                 </div>
 
-                <!-- Tombol Toggle Dark/Light (sama dengan navbar) -->
-                <button id="theme-toggle-login" 
-                    class="p-2 rounded-md text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700">
-                    <svg id="theme-toggle-light-icon-login" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 3.75a6.25 6.25 0 100 12.5 6.25 6.25 0 000-12.5zM10 2a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 0110 2zM10 15.75a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM3.22 3.22a.75.75 0 011.06 0l1.06 1.06a.75.75 0 11-1.06 1.06L3.22 4.28a.75.75 0 010-1.06zM14.66 14.66a.75.75 0 011.06 0l1.06 1.06a.75.75 0 11-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zM2 10a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5A.75.75 0 012 10zM15.75 9.25h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 010-1.5zM4.28 15.72a.75.75 0 010-1.06l1.06-1.06a.75.75 0 111.06 1.06L5.34 15.72a.75.75 0 01-1.06 0zM14.66 5.34a.75.75 0 010-1.06l1.06-1.06a.75.75 0 011.06 1.06l-1.06 1.06a.75.75 0 01-1.06 0z"/>
-                    </svg>
-                    <svg id="theme-toggle-dark-icon-login" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8 8 0 1010.586 10.586z"/>
-                    </svg>
-                </button>
+                <!-- Slot untuk isi form -->
+                {{ $slot }}
             </div>
-
-            <!-- Slot untuk isi form -->
-            {{ $slot }}
         </div>
+
+       <!-- Footer -->
+        <footer class="relative z-10 w-full text-center py-4 text-xs 
+                       text-gray-300 dark:text-gray-500 bg-transparent">
+            <p>&copy; {{ date('Y') }} Copy Right. By Telkom University Surabaya</p>
+        </footer>
     </div>
 
+    <!-- Script Toggle Dark/Light -->
     <script>
     const themeToggleLogin = document.getElementById('theme-toggle-login');
     const darkIconLogin = document.getElementById('theme-toggle-dark-icon-login');
