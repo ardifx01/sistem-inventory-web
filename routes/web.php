@@ -91,6 +91,7 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
 // -------------------------
 Route::get('/tatanan-rack', [RackController::class, 'index'])->name('tatanan-rack');
 
+
 // -------------------------
 // Auth Routes
 // -------------------------

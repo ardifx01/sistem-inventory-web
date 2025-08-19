@@ -7,6 +7,9 @@
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
+        <!-- Custom Styles -->
+        <link rel="stylesheet" href="{{ asset('css/rack-images.css') }}">
+
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
@@ -41,7 +44,9 @@
             <!-- Page Content -->
             <main>
                 @yield('content')
-            </main>
+            </main>    
+    <!-- Footer -->
+    @include('layouts.footer')
         </div>
     </body>
 </html>
