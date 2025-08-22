@@ -24,12 +24,15 @@
         <div class="absolute inset-0 bg-black/50"></div>
 
         <!-- Wrapper isi -->
-        <div class="flex flex-1 items-center justify-end pr-12 relative z-10">
+        <div class="flex flex-1 items-center 
+                    justify-center md:justify-end 
+                    md:pr-8 lg:pr-16 xl:pr-24 relative z-10">
             
-            <!-- Form Card (pakai style dari code 2) -->
+            <!-- Form Card -->
             <div class="relative w-full max-w-md px-6 py-8 
-                        bg-white/80 dark:bg-gray-800/80 backdrop-blur-md 
-                        shadow-xl rounded-2xl">
+                bg-white/80 dark:bg-gray-800/80 backdrop-blur-md 
+                shadow-xl rounded-2xl
+                md:-translate-x-8 lg:-translate-x-16 xl:-translate-x-24">
                 
                 <!-- Logo + Toggle -->
                 <div class="flex items-center justify-between mb-6">

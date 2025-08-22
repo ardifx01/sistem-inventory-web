@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use App\Observers\GlobalActivityLogObserver;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Auth;
 
 
 class AppServiceProvider extends ServiceProvider
@@ -23,7 +24,24 @@ class AppServiceProvider extends ServiceProvider
      */
 
     public function boot(): void
-    {
+    {   
+    
+        // Share notifCount dan notifList ke semua view
+        View::composer('*', function ($view) {
+            if (Auth::check() && Auth::user()->role === 'superadmin') {
+                $user = Auth::user();
+                $notifCount = $user->unreadNotifications()->count();
+                $notifList = $user->unreadNotifications()->take(5)->get(); // tampilkan 5 terbaru
+                $view->with(compact('notifCount', 'notifList'));
+            } else {
+                $view->with([
+                    'notifCount' => 0,
+                    'notifList' => collect(),
+                ]);
+            }
+        });
+
+        
         // Daftar model yang mau di-log otomatis
         $models = [
             \App\Models\Item::class, // contoh: model barang

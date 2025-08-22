@@ -81,7 +81,6 @@
                         <select id="role" name="role" class="text-black block mt-1 w-full rounded-md border-gray-300 shadow-sm">
                             <option value="user" {{ $user->role=='user' ? 'selected' : '' }}>User</option>
                             <option value="admin" {{ $user->role=='admin' ? 'selected' : '' }}>Admin</option>
-                            <option value="superadmin" {{ $user->role=='superadmin' ? 'selected' : '' }}>Superadmin</option>
                         </select>
                         <x-input-error :messages="$errors->get('role')" class="mt-2" />
                     </div>
