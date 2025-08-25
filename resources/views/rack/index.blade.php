@@ -17,95 +17,87 @@
     $pad2 = fn($n) => sprintf('%02d', $n);
 @endphp
 
-<div class="py-6" 
+<div class="container mx-auto p-6"
      x-data="{
         category: 'pieces',
-        selected: null,
-    }">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        selectedRack: null,
+        selectedLevel: null,
+        selectedSlot: null,
+        racks: @js(array_map(fn($i) => $selectedArea . '-' . $pad2($i), range(1, $columns))),
+        levels: {{ $levels }},
+        slots: {{ $positions }}
+     }">
 
-        {{-- Header --}}
-        <div class="text-center">
-            <h2 class="text-lg font-semibold">Lokasi Rak</h2>
-            <p class="text-xl font-mono text-indigo-600" 
-               x-text="selected ? selected : 'Pilih rak terlebih dahulu'"></p>
+    <!-- Header -->
+    <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold">Daftar Rak</h2>
+    </div>
+
+    <!-- Dropdown Jenis Rak -->
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+        <div class="flex items-center gap-2">
+            <label for="rackType" class="font-semibold">Pilih Jenis Rak</label>
+            <select id="rackType" x-model="category"
+                class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200">
+                <option value="pieces">Pieces (P)</option>
+                <option value="bulky">Bulky (B)</option>
+                <option value="lower">Lower (L)</option>
+            </select>
         </div>
+    </div>
 
-        {{-- Dropdown Jenis Rak --}}
-        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-2">
-                <label for="rackType" class="font-semibold">Pilih Jenis Rak</label>
-                <select id="rackType" x-model="category"
-                    class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200">
-                    <option value="pieces">Pieces (P)</option>
-                    <option value="bulky">Bulky (B)</option>
-                    <option value="lower">Lower (L)</option>
-                </select>
+    <!-- Daftar Rak -->
+    <div class="grid grid-cols-3 gap-4">
+        <template x-for="rack in racks" :key="rack">
+            <div 
+                class="p-4 border rounded-lg cursor-pointer transition text-center"
+                :class="selectedRack === rack ? 'bg-blue-500 text-white shadow-lg' : 'bg-gray-100 hover:bg-gray-200'"
+                @click="selectedRack = rack; selectedLevel = null; selectedSlot = null">
+                <span x-text="rack"></span>
             </div>
-        </div>
- 
-        {{-- Grid Rak --}}
-        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            @for($col=1; $col <= $columns; $col++)
-             @php $colCode = $pad2($col); @endphp
-                <div class="rounded-xl border border-gray-300 dark:border-gray-600 shadow-lg bg-white dark:bg-gray-800 overflow-hidden">
-                    <div class="px-3 py-2 bg-gray-100 dark:bg-gray-700 flex justify-between text-xs text-gray-600 dark:text-gray-300 font-semibold">
-                        <span>Rak</span>
-                        <span class="font-mono">{{ $selectedArea }}-{{ $colCode }}</span>
-                    </div>
+        </template>
+    </div>
 
-                    <div class="p-3 flex flex-col-reverse gap-2">
-                        @for($lvl=1; $lvl <= $levels; $lvl++)
-                            {{-- Tampilkan level sesuai kategori: pieces=4, bulky=2, lower=3 --}}
-                            <div
-                            x-show="(category === 'pieces' && {{ $lvl }} <= 4) ||
-                                    (category === 'bulky'  && {{ $lvl }} <= 2) ||
-                                    (category === 'lower'  && {{ $lvl }} <= 3)">
-                            <div class="grid grid-cols-{{ $positions }} gap-1">
-                                @for($pos=1; $pos <= $positions; $pos++)
-                                    @php
-                                     // Pastikan $lvlCode didefinisikan DI SINI sebelum dipakai
-                                        $lvlCode = $pad2($lvl);
-                                        $posCode = $pad2($pos);
-                                        $code    = "{$selectedArea}-{$colCode}-{$lvlCode}-{$posCode}";
-                                        $slot    = $slots[$code] ?? null;
-                                        $role    = $slot['role'] ?? null;
-                                        $bgColor = match($role) {
-                                            'pieces' => 'bg-blue-500 text-white hover:bg-blue-600',
-                                            'bulky'  => 'bg-orange-500 text-black hover:bg-orange-600',
-                                            'lower'  => 'bg-green-500 text-black hover:bg-green-600',
-                                            default  => 'bg-gray-200 dark:bg-gray-700 text-gray-500'
-                                        };
-                                    @endphp
-                                        <div 
-                                            x-show="category === '{{ $role ?? 'none' }}'"
-                                            class="relative group rounded-md text-[10px] flex items-center justify-center h-8 border border-gray-300 dark:border-gray-600 transition {{ $bgColor }}">
-                                            <span class="absolute top-0 left-1 font-mono">{{ $posCode }}</span>
-                                            
-                                            @if($slot)
-                                                {{ strtoupper($role[0]) }}
-                                                {{-- Tooltip --}}
-                                                <div class="absolute z-10 hidden group-hover:flex flex-col text-xs bg-black text-white rounded p-2 -top-12 left-1/2 -translate-x-1/2">
-                                                    <span><strong>SKU:</strong> {{ $slot['sku'] }}</span>
-                                                    <span><strong>Qty:</strong> {{ $slot['qty'] }}</span>
-                                                </div>
-                                            @else
-                                                &ndash;
-                                            @endif
-                                        </div>
-                                    @endfor
-                                </div>
-                                <div class="h-1 bg-gray-400 dark:bg-gray-600 mt-1 rounded"></div>
-                            </div>
-                        @endfor
-                    </div>
+    <!-- Pilih Level -->
+    <div class="mt-6" x-show="selectedRack">
+        <h2 class="text-xl font-semibold mb-4">Level di <span x-text="selectedRack"></span></h2>
+        <div class="flex flex-wrap gap-2">
+            <template x-for="level in levels" :key="level">
+                <button 
+                    class="px-4 py-2 rounded-lg border transition"
+                    :class="selectedLevel === level ? 'bg-green-500 text-white' : 'bg-gray-200 hover:bg-gray-300'"
+                    @click="selectedLevel = level; selectedSlot = null">
+                    Level <span x-text="level"></span>
+                </button>
+            </template>
+        </div>
+    </div>
+
+    <!-- Pilih Slot -->
+    <div class="mt-6" x-show="selectedLevel">
+        <h3 class="text-lg font-semibold mb-3">Slot di Level <span x-text="selectedLevel"></span></h3>
+        <div class="grid grid-cols-5 gap-3">
+            @for($pos = 1; $pos <= $positions; $pos++)
+                @php $posCode = $pad2($pos); @endphp
+                <div 
+                    class="p-3 border rounded-lg cursor-pointer transition"
+                    :class="selectedSlot === '{{ $posCode }}' ? 'bg-yellow-400 text-black' : 'bg-white hover:bg-blue-100'"
+                    @click="selectedSlot = '{{ $posCode }}'">
+                    Slot {{ $posCode }}
                 </div>
             @endfor
         </div>
     </div>
+
+    <!-- Detail Slot -->
+    <div class="mt-6" x-show="selectedSlot">
+        <div class="p-4 border rounded-lg bg-white shadow">
+            <h3 class="font-semibold mb-2">Detail Slot</h3>
+            <p><strong>Rak:</strong> <span x-text="selectedRack"></span></p>
+            <p><strong>Level:</strong> <span x-text="selectedLevel"></span></p>
+            <p><strong>Daftar Barang:</strong> <span x-text="selectedSlot"></span></p>
+        </div>
+    </div>
+
 </div>
 @endsection
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/rack-images.css') }}">
-@endpush
