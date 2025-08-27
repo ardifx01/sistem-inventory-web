@@ -73,7 +73,7 @@
                                             selectedSlot !== (rack + '-L' + level + '-S' + slot)
                                             }"
                                             @click.stop="selectedRack = rack; selectedLevel = level; selectedSlot = rack + '-L' + level + '-S' + slot"
-                                            x-text="'S' + slot">
+                                            x-text=" + slot">
                                         </div>
                                     </template>
                                 </div>
@@ -94,10 +94,10 @@
     <!-- Detail Slot -->
     <div class="mt-8" x-show="selectedSlot">
         <div class="p-4 border rounded-lg bg-white dark:bg-gray-800 shadow">
-            <h3 class="font-semibold mb-2">Detail Slot</h3>
+            <h3 class="font-semibold mb-2">Detail Kolom</h3>
             <p><strong>Rak:</strong> <span x-text="selectedRack"></span></p>
             <p><strong>Level:</strong> <span x-text="selectedLevel"></span></p>
-            <p><strong>Slot:</strong> <span x-text="selectedSlot"></span></p>
+            <p><strong>Barang:</strong> <span x-text="selectedSlot"></span></p>
         </div>
     </div>
 </div>
