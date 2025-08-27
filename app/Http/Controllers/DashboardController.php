@@ -46,9 +46,9 @@ class DashboardController extends Controller
 
     public function getBarangBaru()
     {
-        $barangBaru = Item::select('name', 'item_code', 'rack_location')
+        $barangBaru = Item::select('name', 'category_id', 'item_code', 'rack_location')
                         ->orderBy('created_at', 'desc')
-                        ->take(8)
+                        ->take(4)
                         ->get();
 
         return response()->json($barangBaru);
