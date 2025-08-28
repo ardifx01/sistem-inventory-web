@@ -8,9 +8,25 @@ use Illuminate\Support\Facades\Hash;
 
 class KelolaAkunController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderBy('created_at', 'desc')->get();
+        $query = User::orderBy('created_at', 'desc');
+
+        // Filter pencarian jika ada input
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('username', 'like', "%{$search}%");
+            });
+        }
+
+        // Pagination, 10 data per halaman
+        $users = $query->paginate(10);
+
+        // Pastikan pencarian ikut saat pindah halaman
+        $users->appends(['search' => $request->search]);
+
         return view('kelola-akun.index', compact('users'));
     }
 

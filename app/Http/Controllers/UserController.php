@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Notification;
+use App\Notifications\PasswordResetRequestNotification;
+
 
 class UserController extends Controller
 {
@@ -23,7 +26,7 @@ class UserController extends Controller
             'email' => 'required|email|unique:users,email',
             'username' => 'required|string|unique:users,username',
             'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:user,admin,superadmin',
+            'role' => 'required|in:user,admin',
             'status' => 'required|in:active,inactive',
         ]);
 
@@ -39,12 +42,39 @@ class UserController extends Controller
         return redirect()->route('kelola-akun')->with('message', 'Akun baru berhasil ditambahkan.');
     }
 
-    // Tampilkan daftar akun
-    public function index()
-    {
-        $users = User::orderBy('created_at', 'desc')->get();
-        return view('kelola-akun.index', compact('users'));
+public function index(Request $request)
+{
+    $query = User::orderBy('created_at', 'desc');
+
+    // Filter pencarian jika ada input
+    if ($request->filled('search')) {
+        $search = $request->search;
+        $query->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('username', 'like', "%{$search}%");
+        });
     }
+
+    // ✅ Filter Role
+    if ($request->filled('role')) {
+        $query->where('role', $request->role);
+    }
+
+    // ✅ Filter Status
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // Pagination, 10 data per halaman
+    $users = $query->paginate(10);
+
+    // Pastikan filter ikut saat pindah halaman
+    $users->appends($request->all());
+
+    return view('kelola-akun.index', compact('users'));
+}
+
+
 
     // Tampilkan form edit
     public function edit($id)
@@ -62,18 +92,26 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$user->id,
             'username' => 'required|string|unique:users,username,'.$user->id,
-            'role' => 'required|in:user,admin,superadmin',
+            'role' => 'required|in:user,admin',
             'status' => 'required|in:active,inactive',
             'password' => 'nullable|string|min:8|confirmed',
         ]);
 
         $user->name = $request->name;
-        $user->email = $request->email;
         $user->username = $request->username;
-        $user->role = $request->role;
-        $user->status = $request->status;
 
-        if($request->password) {
+        // Hanya superadmin yang boleh mengubah email-nya
+        if ($user->role === 'superadmin') {
+            $user->email = $request->email;
+        }
+
+        // Superadmin tidak bisa ubah role atau status dirinya sendiri
+        if (!($user->id === auth()->id() && $user->role === 'superadmin')) {
+            $user->role = $request->role;
+            $user->status = $request->status;
+        }
+
+        if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
         }
 
@@ -81,6 +119,51 @@ class UserController extends Controller
 
         return redirect()->route('kelola-akun')->with('message', 'Akun berhasil diperbarui.');
     }
+
+
+public function showRequestForm()
+{
+    return view('auth.request-reset'); // buat view baru
+}
+
+
+public function requestReset(Request $request)
+{
+    $login = $request->input('username_or_email'); // sesuaikan dengan form
+
+    $user = User::where('email', $login)
+                ->orWhere('username', $login)
+                ->first();
+
+    if ($user) {
+        $superadmins = User::where('role', 'superadmin')->get();
+
+        \Notification::send($superadmins, new PasswordResetRequestNotification($user));
+    }
+
+
+    return back()->with('status', 'Permintaan reset password telah dikirim ke Super admin.');
+}
+
+
+    // Superadmin ambil notifikasi (JSON)
+    public function getNotifications()
+    {
+        $notifications = auth()->user()->unreadNotifications()->latest()->get();
+        return response()->json($notifications);
+    }
+
+    // Tandai notifikasi dibaca
+    public function markAsRead($id)
+    {
+        $notification = auth()->user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
+
+        return response()->json(['success' => true]);
+    }
+
+
+
 
     // Toggle status aktif/inaktif
     public function toggleStatus($id)

@@ -68,7 +68,6 @@
                                    focus:ring-indigo-500">
                         <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>User</option>
                         <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                        <option value="superadmin" {{ old('role') == 'superadmin' ? 'selected' : '' }}>Super Admin</option>
                     </select>
                     <x-input-error :messages="$errors->get('role')" class="mt-2" />
                 </div>
