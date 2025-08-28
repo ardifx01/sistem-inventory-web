@@ -50,5 +50,81 @@
         <!-- Footer -->
         @include('layouts.footer')
 
+        <!-- Sweet Alert for Flash Messages -->
+        @if(session('success'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (window.Swal) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Berhasil!',
+                            text: '{{ session('success') }}',
+                            confirmButtonColor: '#10B981',
+                            confirmButtonText: 'OK',
+                            timer: 4000,
+                            timerProgressBar: true,
+                            position: 'top-end',
+                            toast: true,
+                            showConfirmButton: false,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer);
+                                toast.addEventListener('mouseleave', Swal.resumeTimer);
+                            }
+                        });
+                    }
+                });
+            </script>
+        @endif
+
+        @if(session('error'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (window.Swal) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: '{{ session('error') }}',
+                            confirmButtonColor: '#EF4444',
+                            confirmButtonText: 'OK',
+                            timer: 4000,
+                            timerProgressBar: true,
+                            position: 'top-end',
+                            toast: true,
+                            showConfirmButton: false,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer);
+                                toast.addEventListener('mouseleave', Swal.resumeTimer);
+                            }
+                        });
+                    }
+                });
+            </script>
+        @endif
+
+        @if(session('warning'))
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    if (window.Swal) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Perhatian!',
+                            text: '{{ session('warning') }}',
+                            confirmButtonColor: '#F59E0B',
+                            confirmButtonText: 'OK',
+                            timer: 4000,
+                            timerProgressBar: true,
+                            position: 'top-end',
+                            toast: true,
+                            showConfirmButton: false,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer);
+                                toast.addEventListener('mouseleave', Swal.resumeTimer);
+                            }
+                        });
+                    }
+                });
+            </script>
+        @endif
+
     </body>
 </html>

@@ -1,9 +1,11 @@
 import './bootstrap';
 import Alpine from 'alpinejs';
 import { Html5Qrcode } from 'html5-qrcode';
+import Swal from 'sweetalert2';
 
 window.Alpine = Alpine;
 window.Html5Qrcode = Html5Qrcode;
+window.Swal = Swal;
 
 document.addEventListener("DOMContentLoaded", function () {
     // ======================================
@@ -106,95 +108,119 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-    // Helper untuk menampilkan notifikasi di halaman
+    // Helper untuk menampilkan notifikasi di halaman menggunakan Sweet Alert
     function showNotification(message, type) {
-        const notification = document.createElement('div');
-        notification.className = `flex items-center gap-2 px-4 py-3 rounded-xl mb-2 shadow-md transition-all duration-300 ease-out transform translate-y-2 opacity-0 font-semibold`;
-        notification.role = 'alert';
-
-        let icon = '';
+        let icon, title, confirmButtonColor;
+        
         if (type === 'success') {
-            notification.classList.add('bg-green-100', 'border', 'border-green-400', 'text-green-700');
-            icon = `<svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>`;
+            icon = 'success';
+            title = 'Berhasil!';
+            confirmButtonColor = '#10B981'; // green-500
         } else if (type === 'error') {
-            notification.classList.add('bg-red-100', 'border', 'border-red-400', 'text-red-700');
-            icon = `<svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>`;
+            icon = 'error';
+            title = 'Oops...';
+            confirmButtonColor = '#EF4444'; // red-500
         } else {
-            notification.classList.add('bg-yellow-100', 'border', 'border-yellow-400', 'text-yellow-700');
-            icon = `<svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M12 20c4.418 0 8-3.582 8-8s-3.582-8-8-8-8 3.582-8 8 3.582 8 8 8z"/></svg>`;
+            icon = 'warning';
+            title = 'Perhatian!';
+            confirmButtonColor = '#F59E0B'; // yellow-500
         }
-        notification.innerHTML = `${icon}<span>${message}</span>`;
 
-        notificationContainer.prepend(notification);
-        setTimeout(() => {
-            notification.classList.remove('translate-y-2', 'opacity-0');
-            notification.classList.add('translate-y-0', 'opacity-100');
-        }, 10);
-
-        setTimeout(() => {
-            notification.classList.remove('translate-y-0', 'opacity-100');
-            notification.classList.add('translate-y-2', 'opacity-0');
-            setTimeout(() => notification.remove(), 300);
-        }, 5000);
+        Swal.fire({
+            icon: icon,
+            title: title,
+            text: message,
+            confirmButtonColor: confirmButtonColor,
+            confirmButtonText: 'OK',
+            timer: 4000,
+            timerProgressBar: true,
+            position: 'top-end',
+            toast: true,
+            showConfirmButton: false,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
     }
 
-    // #1: Helper baru untuk menampilkan notifikasi di dalam modal
-    function showModalNotification(message, type) {
-        if (!modalNotificationContainer) return;
-
-        // Clear existing notifications
-        modalNotificationContainer.innerHTML = '';
-        
-        const notification = document.createElement('div');
-        notification.className = `alert px-4 py-3 rounded-xl mb-2 shadow-md transition-all duration-300 ease-out transform translate-y-2 opacity-0`;
-        notification.role = 'alert';
-        notification.innerHTML = `<span class="block sm:inline">${message}</span>`;
+    // #1: Helper baru untuk menampilkan notifikasi lokal di bawah form tambah kategori menggunakan Sweet Alert
+    function showLocalCategoryNotification(message, type) {
+        let icon, title, confirmButtonColor, background;
         
         if (type === 'success') {
-            notification.classList.add('bg-green-100', 'border', 'border-green-400', 'text-green-700');
+            icon = 'success';
+            title = 'Berhasil!';
+            confirmButtonColor = '#10B981'; // green-500
+            background = '#F0FDF4'; // green-50
         } else if (type === 'error') {
-            notification.classList.add('bg-red-100', 'border', 'border-red-400', 'text-red-700');
+            icon = 'error';
+            title = 'Gagal!';
+            confirmButtonColor = '#EF4444'; // red-500
+            background = '#FEF2F2'; // red-50
         }
 
-        modalNotificationContainer.prepend(notification);
-        setTimeout(() => {
-            notification.classList.remove('translate-y-2', 'opacity-0');
-            notification.classList.add('translate-y-0', 'opacity-100');
-        }, 10);
+        // Cari modal kategori untuk menentukan target
+        const categoryModal = document.getElementById('categoryCrudModal');
+        let target = categoryModal;
 
-        setTimeout(() => {
-            notification.classList.remove('translate-y-0', 'opacity-100');
-            notification.classList.add('translate-y-2', 'opacity-0');
-            setTimeout(() => notification.remove(), 300);
-        }, 5000);
-    }
+        // Jika modal tidak terlihat, gunakan target utama
+        if (categoryModal && categoryModal.classList.contains('hidden')) {
+            target = document.body;
+        }
 
-    // Helper untuk menampilkan modal konfirmasi
-    function showConfirmModal(title, body, actions) {
-        if (modalTitle) modalTitle.textContent = title;
-        if (modalBody) modalBody.innerHTML = body;
-        
-        const modalActions = document.getElementById('modalActions');
-        modalActions.innerHTML = '';
-        actions.forEach(action => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.id = action.id;
-            button.className = action.className;
-            button.textContent = action.text;
-            button.addEventListener('click', action.handler);
-            modalActions.appendChild(button);
+        Swal.fire({
+            icon: icon,
+            title: title,
+            html: message, // Menggunakan html instead of text untuk support bold tags
+            confirmButtonColor: confirmButtonColor,
+            confirmButtonText: 'OK',
+            timer: 3500,
+            timerProgressBar: true,
+            position: 'center',
+            backdrop: false,
+            allowOutsideClick: false,
+            customClass: {
+                container: 'swal-category-container',
+                popup: 'swal-category-popup'
+            },
+            target: target,
+            didOpen: (popup) => {
+                popup.style.backgroundColor = background;
+                popup.style.border = type === 'success' ? '2px solid #10B981' : '2px solid #EF4444';
+                popup.addEventListener('mouseenter', Swal.stopTimer);
+                popup.addEventListener('mouseleave', Swal.resumeTimer);
+            }
         });
-
-        confirmModal?.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
     }
 
-    // Helper untuk menyembunyikan modal konfirmasi
-    function hideConfirmModal() {
-        confirmModal?.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-        pendingDeleteData = { type: null, form: null };
+    // Helper untuk menampilkan modal konfirmasi menggunakan Sweet Alert
+    function showConfirmModal(title, body, actions) {
+        // Untuk kompatibilitas dengan kode existing, kita convert ke Sweet Alert
+        Swal.fire({
+            icon: 'warning',
+            title: title,
+            html: body,
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444', // red-600
+            cancelButtonColor: '#6B7280', // gray-500
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal',
+            reverseButtons: true,
+            customClass: {
+                confirmButton: 'px-6 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors',
+                cancelButton: 'px-6 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors'
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Cari action dengan id confirmDeleteBtn dan jalankan handlernya
+                const confirmAction = actions.find(action => action.id === 'confirmDeleteBtn');
+                if (confirmAction && confirmAction.handler) {
+                    confirmAction.handler();
+                }
+            }
+            // Jika dibatalkan, Sweet Alert otomatis menutup
+        });
     }
 
     // Helper untuk mengelola tombol bulk action
@@ -284,7 +310,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const title = 'Hapus Item Terpilih?';
         const body = `Anda akan menghapus <span class="font-semibold">${selectedIds.length}</span> item. Tindakan ini tidak bisa dibatalkan.`;
         showConfirmModal(title, body, [
-            { id: 'cancelDeleteBtn', text: 'Batal', className: 'px-6 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors', handler: hideConfirmModal },
+            { id: 'cancelDeleteBtn', text: 'Batal', className: 'px-6 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors', handler: () => {} },
             { id: 'confirmDeleteBtn', text: 'Ya, Hapus', className: 'px-6 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors', handler: () => {
                 const bulkDeleteInputs = document.getElementById('bulk-delete-inputs');
                 bulkDeleteInputs.innerHTML = '';
@@ -312,7 +338,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const title = 'Hapus Barang ini?';
             const body = `Apakah Anda yakin ingin menghapus barang <span class="font-semibold">${itemName}</span>? Tindakan ini tidak bisa dibatalkan.`;
             showConfirmModal(title, body, [
-                { id: 'cancelDeleteBtn', text: 'Batal', className: 'px-6 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors', handler: hideConfirmModal },
+                { id: 'cancelDeleteBtn', text: 'Batal', className: 'px-6 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors', handler: () => {} },
                 { id: 'confirmDeleteBtn', text: 'Ya, Hapus', className: 'px-6 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors', handler: () => {
                     pendingDeleteData.form.submit();
                 }}
@@ -390,7 +416,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const deleteForm = document.getElementById(`delete-category-form-${catId}`);
 
         if (!deleteForm) {
-            showModalNotification('Formulir penghapusan tidak ditemukan.', 'error');
+            showLocalCategoryNotification('Formulir penghapusan tidak ditemukan.', 'error');
             return;
         }
         
@@ -405,7 +431,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .then(data => {
                     if (data.is_default) {
-                        showModalNotification('Kategori default tidak dapat dihapus.', 'error');
+                        showLocalCategoryNotification('Kategori default tidak dapat dihapus.', 'error');
                         return;
                     }
 
@@ -414,22 +440,27 @@ document.addEventListener("DOMContentLoaded", function () {
                         document.getElementById('itemCountSpan').textContent = itemCount;
                         confirmDeleteCategoryModal?.classList.remove('hidden');
                     } else {
-                    showConfirmModal(
-                        'Hapus Kategori?',
-                        'Tindakan ini tidak dapat dikembalikan.',
-                        [
-                            { id: 'cancelDeleteBtn', text: 'Batal', className: 'px-6 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100 transition-colors', handler: hideConfirmModal },
-                            { id: 'confirmDeleteBtn', text: 'Hapus', className: 'px-6 py-2 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors', handler: () => {
-                                handleDeleteCategory('delete_only');
-                                hideConfirmModal();
-                            }}
-                        ]
-                    );
+                    // Kategori kosong, konfirmasi langsung dengan Sweet Alert
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Hapus Kategori?',
+                        text: 'Tindakan ini tidak dapat dikembalikan.',
+                        showCancelButton: true,
+                        confirmButtonColor: '#EF4444',
+                        cancelButtonColor: '#6B7280',
+                        confirmButtonText: 'Hapus',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            handleDeleteCategory('delete_only');
+                        }
+                    });
                 }
 
                 })
                 .catch(error => {
-                    showModalNotification(error.message, 'error');
+                    showLocalCategoryNotification(error.message, 'error');
                 });
     });
 
@@ -461,20 +492,20 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             const data = await response.json();
 
-            // #2: Tidak menutup modal, hanya tampilkan notifikasi
+            // #2: Menggunakan notifikasi lokal untuk kategori
             if (data.success) {
-            showNotification(data.message, 'success');
+            showLocalCategoryNotification(data.message, 'success');
             const categoryItem = document.querySelector(`.category-item button[data-id="${catId}"]`);
             if (categoryItem) {
                 const li = categoryItem.closest('li');
                 li.remove();
             }
             } else {
-                showModalNotification(data.message, 'error');
+                showLocalCategoryNotification(data.message, 'error');
             }
         } catch (error) {
             console.error('Error saat menghapus kategori:', error);
-            showModalNotification('Terjadi kesalahan saat menghapus kategori. Silakan coba lagi.', 'error');
+            showLocalCategoryNotification('Terjadi kesalahan saat menghapus kategori. Silakan coba lagi.', 'error');
         }
     }
 
@@ -488,7 +519,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // #3: Frontend check untuk mencegah edit kategori default
         if (catName === 'Belum Dikategorikan') {
-            showModalNotification('Kategori default tidak dapat diedit.', 'error');
+            showLocalCategoryNotification('Kategori default tidak dapat diedit.', 'error');
             return;
         }
 
@@ -522,9 +553,9 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             const data = await response.json();
             
-            // #2: Tidak menutup modal setelah berhasil
+            // #2: Menggunakan notifikasi lokal untuk edit kategori
             if (response.ok && data.success) {
-                showNotification(data.message, 'success'); // notifikasi di halaman
+                showLocalCategoryNotification(data.message, 'success'); // notifikasi lokal kategori
                 editCategoryModal?.classList.add('hidden');
                 document.body.classList.remove('overflow-hidden');
 
@@ -549,11 +580,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 }
             } else {
-                showModalNotification(data.message, 'error');
+                showLocalCategoryNotification(data.message, 'error');
             }
         } catch (error) {
             console.error('Error saat mengupdate kategori:', error);
-            showModalNotification('Terjadi kesalahan saat mengupdate kategori. Silakan coba lagi.', 'error');
+            showLocalCategoryNotification('Terjadi kesalahan saat mengupdate kategori. Silakan coba lagi.', 'error');
         }
     });
 
@@ -601,7 +632,8 @@ document.addEventListener("DOMContentLoaded", function () {
             const data = await response.json();
             
             if (response.ok && data.success) {
-                showNotification(data.message, 'success'); // tampilkan notifikasi di halaman
+                if (response.ok && data.success) {
+                showLocalCategoryNotification(`${data.message}`, 'success'); // tampilkan notifikasi lokal kategori
                 form.reset();
 
                 // Tambahkan kategori baru ke list DOM tanpa reload
@@ -633,11 +665,14 @@ document.addEventListener("DOMContentLoaded", function () {
                 // Tambahkan kategori baru dengan urutan alfabetis
                 insertCategoryInOrder(newCategory, data.name);
             } else {
-                showModalNotification(data.message, 'error');
+                showLocalCategoryNotification(`Gagal menambah kategori: ${data.message}`, 'error');
+            }
+            } else {
+                showLocalCategoryNotification(`Gagal menambah kategori: ${data.message}`, 'error');
             }
         } catch (error) {
             console.error('Error saat menambahkan kategori:', error);
-            showModalNotification('Terjadi kesalahan saat menambahkan kategori. Silakan coba lagi.', 'error');
+            showLocalCategoryNotification('Terjadi kesalahan saat menambahkan kategori. Silakan coba lagi.', 'error');
         }
     });
 

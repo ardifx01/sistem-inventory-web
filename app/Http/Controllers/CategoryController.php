@@ -139,15 +139,15 @@ public function store(Request $request)
                         return response()->json(['success' => false, 'message' => 'Tidak ada kategori default untuk memindahkan barang.'], 409);
                     }
                     $category->items()->update(['category_id' => $defaultCategory->id]);
-                    $message = "Kategori **{$category->name}** berhasil dihapus dan **{$itemCount}** barang dipindahkan ke **{$defaultCategory->name}**.";
+                    $message = "Kategori <b>{$category->name}<b> berhasil dihapus dan <b>{$itemCount}<b> barang dipindahkan ke <b>{$defaultCategory->name}<b>.";
                 } elseif ($action === 'delete_items') {
                     $category->items()->delete();
-                    $message = "Kategori **{$category->name}** berhasil dihapus dan **{$itemCount}** barang di dalamnya juga terhapus.";
+                    $message = "Kategori <b>{$category->name}<b> berhasil dihapus dan <b>{$itemCount}<b> barang di dalamnya juga terhapus.";
                 }
             } else {
                 // Konfirmasi penghapusan untuk kategori tanpa item
                 if ($action === 'delete_only') {
-                    $message = "Kategori **{$category->name}** berhasil dihapus.";
+                    $message = "Kategori <b>{$category->name}<b> berhasil dihapus.";
                 } else {
                     return response()->json(['success' => false, 'message' => 'Aksi penghapusan tidak valid.'], 422);
                 }

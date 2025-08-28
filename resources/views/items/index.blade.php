@@ -145,10 +145,6 @@
                     {{-- Tombol akan di-inject oleh JavaScript --}}
                 </div>
             </div>
-            <button type="button" id="closeConfirmDelete" aria-label="close" data-dismiss="modal"
-                    class="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white text-gray-700 shadow flex items-center justify-center">
-                ✕
-            </button>
         </div>
     </div>
     @endif
@@ -243,9 +239,6 @@
                             </button>
                         </div>
                     </form>
-                    {{-- Tombol close di luar form --}}
-                    <button type="button" id="closeEditCategoryModal" aria-label="close" data-dismiss="modal"
-                            class="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-white text-gray-700 shadow flex items-center justify-center">✕</button>
                 </div>
             </div>
 
