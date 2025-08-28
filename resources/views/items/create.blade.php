@@ -32,8 +32,6 @@
             <h2 class="text-2xl font-bold mb-4 text-center">Tambah Barang</h2>
 
             <form method="POST" action="{{ route('items.store') }}">
-
-                
                 @csrf
 
                 {{-- Nama Barang --}}
@@ -54,9 +52,9 @@
                     <x-input-error :messages="$errors->get('item_code')" class="mt-2" />
                 </div>
 
-                {{-- Barcode --}}
+                {{-- Barcode (opsional) --}}
                 <div class="mt-4">
-                    <x-input-label for="barcode" :value="__('Barcode')" />
+                    <x-input-label for="barcode" :value="__('Barcode (Opsional)')" />
                     <div class="flex gap-2">
                         <x-text-input id="barcode" class="block w-full"
                                       type="text" name="barcode" value="{{ old('barcode') }}" />
@@ -76,18 +74,24 @@
                 {{-- Kategori --}}
                 <div class="mt-4">
                     <x-input-label for="category_id" :value="__('Kategori')" />
-                    <select id="category_id" name="category_id"
-                            class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700
-                                   dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500
-                                   focus:ring-indigo-500"
-                            required>
-                        <option value="">-- Pilih Kategori --</option>
-                        @foreach($categories as $category)
-                            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
-                                {{ $category->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <div class="flex gap-2">
+                        <select id="category_id" name="category_id"
+                                class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700
+                                       dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500
+                                       focus:ring-indigo-500"
+                                required>
+                            <option value="">-- Pilih Kategori --</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <button type="button" id="btn-add-category"
+                            class="px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
+                            + Kategori
+                        </button>
+                    </div>
                     <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
                 </div>
 
@@ -118,6 +122,20 @@
     </div>
 </div>
 
+{{-- Modal Tambah Kategori --}}
+<div id="modal-category" class="fixed inset-0 bg-black/50 flex items-center justify-center hidden z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-full max-w-sm">
+        <h3 class="text-lg font-semibold mb-4">Tambah Kategori</h3>
+        <input type="text" id="new-category-name"
+               class="block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 mb-4"
+               placeholder="Nama kategori baru">
+        <div class="flex justify-end gap-2">
+            <button id="cancel-add-category" class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600">Batal</button>
+            <button id="save-category" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Simpan</button>
+        </div>
+    </div>
+</div>
+
 {{-- Script Barcode Scanner --}}
 <script src="https://unpkg.com/@zxing/library@latest"></script>
 <script>
@@ -132,7 +150,6 @@
         try {
             const devices = await codeReader.listVideoInputDevices();
             const selectedDeviceId = devices[0].deviceId;
-
             codeReader.decodeFromVideoDevice(selectedDeviceId, previewElem, (result) => {
                 if (result) {
                     barcodeInput.value = result.text;
@@ -142,6 +159,53 @@
             });
         } catch (error) {
             console.error(error);
+        }
+    });
+
+    // Modal Tambah Kategori
+    const modalCategory = document.getElementById('modal-category');
+    const btnAddCategory = document.getElementById('btn-add-category');
+    const cancelAddCategory = document.getElementById('cancel-add-category');
+    const saveCategory = document.getElementById('save-category');
+    const categorySelect = document.getElementById('category_id');
+
+    btnAddCategory.addEventListener('click', () => {
+        modalCategory.classList.remove('hidden');
+    });
+
+    cancelAddCategory.addEventListener('click', () => {
+        modalCategory.classList.add('hidden');
+    });
+
+    saveCategory.addEventListener('click', async () => {
+        const name = document.getElementById('new-category-name').value.trim();
+        if (!name) return alert('Nama kategori tidak boleh kosong');
+
+        try {
+            const response = await fetch("{{ route('categories.store') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ name })
+            });
+            const data = await response.json();
+            if (data.success) {
+                // Tambahkan kategori baru ke dropdown
+                const option = document.createElement('option');
+                option.value = data.category.id;
+                option.textContent = data.category.name;
+                option.selected = true;
+                categorySelect.appendChild(option);
+                modalCategory.classList.add('hidden');
+                document.getElementById('new-category-name').value = '';
+            } else {
+                alert(data.message || 'Gagal menambah kategori');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Terjadi kesalahan');
         }
     });
 </script>
