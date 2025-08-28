@@ -35,42 +35,43 @@
                 @csrf
                 @method('PUT')
 
-                {{-- Nama Barang --}}
-                <div>
-                    <x-input-label for="name" :value="__('Nama')" />
-                    <x-text-input id="name" class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                  type="text" name="name" value="{{ old('name', $item->name) }}"
-                                  required autofocus />
-                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                </div>
 
-                {{-- Kode Item --}}
-                <div class="mt-4">
-                    <x-input-label for="item_code" :value="__('Kode Item')" />
-                    <x-text-input id="item_code" class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                  type="text" name="item_code" value="{{ old('item_code', $item->item_code) }}"
-                                  required />
-                    <x-input-error :messages="$errors->get('item_code')" class="mt-2" />
-                </div>
+{{-- Nama Barang (dscription) --}}
+<div>
+    <x-input-label for="dscription" :value="__('Nama')" />
+    <x-text-input id="dscription" class="block mt-1 w-full"
+                  type="text" name="dscription" value="{{ old('dscription', $item->dscription) }}"
+                  required autofocus />
+    <x-input-error :messages="$errors->get('dscription')" class="mt-2" />
+</div>
 
-                {{-- Barcode --}}
-                <div class="mt-4">
-                    <x-input-label for="barcode" :value="__('Barcode')" />
-                    <div class="flex gap-2">
-                        <x-text-input id="barcode" class="block w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                      type="text" name="barcode" value="{{ old('barcode', $item->barcode) }}" />
-                        <button type="button" id="start-scan"
-                            class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-md
-                                   font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-600
-                                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
-                            Scan
-                        </button>
-                    </div>
-                    <div id="scanner-container" class="mt-3 hidden">
-                        <video id="preview" class="border rounded-lg w-full"></video>
-                    </div>
-                    <x-input-error :messages="$errors->get('barcode')" class="mt-2" />
-                </div>
+{{-- Kode Item (itemCode) --}}
+<div class="mt-4">
+    <x-input-label for="itemCode" :value="__('Kode Item')" />
+    <x-text-input id="itemCode" class="block mt-1 w-full"
+                  type="text" name="itemCode" value="{{ old('itemCode', $item->itemCode) }}"
+                  required />
+    <x-input-error :messages="$errors->get('itemCode')" class="mt-2" />
+</div>
+
+{{-- Barcode (codeBars) --}}
+<div class="mt-4">
+    <x-input-label for="codeBars" :value="__('Barcode')" />
+    <div class="flex gap-2">
+        <x-text-input id="codeBars" class="block w-full"
+                      type="text" name="codeBars" value="{{ old('codeBars', $item->codeBars) }}" />
+        <button type="button" id="start-scan"
+            class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-md
+                   font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-600
+                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400">
+            Scan
+        </button>
+    </div>
+    <div id="scanner-container" class="mt-3 hidden">
+        <video id="preview" class="border rounded-lg w-full"></video>
+    </div>
+    <x-input-error :messages="$errors->get('codeBars')" class="mt-2" />
+</div>
 
                 {{-- Kategori --}}
                 <div class="mt-4">

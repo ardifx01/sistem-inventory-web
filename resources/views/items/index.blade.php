@@ -72,50 +72,54 @@
                         @endif
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                    @if($items->isEmpty())
-                        <tr>
-                            <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                                Barang tidak ditemukan.
-                            </td>
-                        </tr>
-                    @else
-                        @foreach($items as $item)
-                        <tr>
-                            <td class="px-4 py-3">{{ $item->name }}</td>
-                            <td class="px-4 py-3 text-center">{{ $item->item_code }}</td>
-                            <td class="px-4 py-3 text-center">{{ $item->barcode ?? '-' }}</td>
-                            <td class="px-4 py-3 text-center">{{ $item->category->name ?? '-' }}</td>
-                            <td class="px-4 py-3 text-center">{{ $item->rack_location }}</td>
-                            @if(in_array(Auth::user()->role, ['admin','superadmin']))
-                            <td class="px-4 py-3 text-center">
-                                <div class="flex justify-center gap-x-2">
-                                    <a href="{{ route('items.edit', $item->id) }}"
-                                       class="px-3 py-0.5 rounded bg-yellow-500 text-white hover:bg-yellow-600 text-sm">
-                                        Edit
-                                    </a>
-                                    {{-- FORM UNTUK HAPUS INDIVIDU --}}
-                                    <form id="delete-form-{{ $item->id }}" action="{{ route('items.destroy', $item->id) }}" method="POST" class="inline-block">
-                                        @csrf @method('DELETE')
-                                        {{-- Tombol ini akan memicu modal konfirmasi via JS --}}
-                                        <button type="button"
-                                                class="px-3 py-0.5 rounded bg-red-600 text-white hover:bg-red-700 text-sm delete-item-btn"
-                                                data-item-id="{{ $item->id }}"
-                                                data-item-name="{{ $item->name }}">
-                                            Hapus
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                            <td class="px-4 py-3 text-center">
-                                {{-- Checkbox ini digunakan untuk bulk delete --}}
-                                <input type="checkbox" class="itemCheckbox w-4 h-4" value="{{ $item->id }}">
-                            </td>
-                            @endif
-                        </tr>
-                        @endforeach
-                    @endif
-                </tbody>
+<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+    @if($items->isEmpty())
+        <tr>
+            <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                Barang tidak ditemukan.
+            </td>
+        </tr>
+    @else
+        @foreach($items as $item)
+        <tr>
+            {{-- Name diganti jadi dscription --}}
+            <td class="px-4 py-3">{{ $item->dscription }}</td>
+
+            {{-- item_code diganti jadi itemCode --}}
+            <td class="px-4 py-3 text-center">{{ $item->itemCode }}</td>
+
+            {{-- barcode diganti jadi codeBars --}}
+            <td class="px-4 py-3 text-center">{{ $item->codeBars ?? '-' }}</td>
+
+            <td class="px-4 py-3 text-center">{{ $item->category->name ?? '-' }}</td>
+            <td class="px-4 py-3 text-center">{{ $item->rack_location }}</td>
+            @if(in_array(Auth::user()->role, ['admin','superadmin']))
+            <td class="px-4 py-3 text-center">
+                <div class="flex justify-center gap-x-2">
+                    <a href="{{ route('items.edit', $item->id) }}"
+                       class="px-3 py-0.5 rounded bg-yellow-500 text-white hover:bg-yellow-600 text-sm">
+                        Edit
+                    </a>
+                    <form id="delete-form-{{ $item->id }}" action="{{ route('items.destroy', $item->id) }}" method="POST" class="inline-block">
+                        @csrf @method('DELETE')
+                        <button type="button"
+                                class="px-3 py-0.5 rounded bg-red-600 text-white hover:bg-red-700 text-sm delete-item-btn"
+                                data-item-id="{{ $item->id }}"
+                                data-item-name="{{ $item->dscription }}">
+                            Hapus
+                        </button>
+                    </form>
+                </div>
+            </td>
+            <td class="px-4 py-3 text-center">
+                <input type="checkbox" class="itemCheckbox w-4 h-4" value="{{ $item->id }}">
+            </td>
+            @endif
+        </tr>
+        @endforeach
+    @endif
+</tbody>
+
             </table>
         </div>
 

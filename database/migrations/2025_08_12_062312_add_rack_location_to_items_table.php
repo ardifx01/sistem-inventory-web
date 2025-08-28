@@ -6,23 +6,33 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('items', function (Blueprint $table) {
-            $table->string('rack_location')->nullable()->after('category_id');
+            if (Schema::hasColumn('items', 'name')) {
+                $table->renameColumn('name', 'dscription');
+            }
+            if (Schema::hasColumn('items', 'item_code')) {
+                $table->renameColumn('item_code', 'itemCode');
+            }
+            if (Schema::hasColumn('items', 'barcode')) {
+                $table->renameColumn('barcode', 'codeBars');
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('items', function (Blueprint $table) {
-            $table->dropColumn('rack_location');
+            if (Schema::hasColumn('items', 'dscription')) {
+                $table->renameColumn('dscription', 'name');
+            }
+            if (Schema::hasColumn('items', 'itemCode')) {
+                $table->renameColumn('itemCode', 'item_code');
+            }
+            if (Schema::hasColumn('items', 'codeBars')) {
+                $table->renameColumn('codeBars', 'barcode');
+            }
         });
     }
 };

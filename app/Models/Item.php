@@ -10,10 +10,10 @@ class Item extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name',
-        'item_code',
-        'barcode',
-        'description',
+        'dscription',
+        'itemCode',
+        'codeBars',
+        // 'description',
         'rack_location', // tambahkan kolom location
         'category_id', // tambahkan supaya bisa mass assign
     ];

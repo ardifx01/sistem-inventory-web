@@ -29,7 +29,7 @@ class DashboardController extends Controller
         $belumMasukRak = Item::where('rack_location', 'ZIP')->count();
 
         // Barang terbaru (4 item saja)
-        $barangBaru = Item::select('name', 'item_code', 'rack_location')
+        $barangBaru = Item::select('dscription', 'itemCode', 'rack_location')
                         ->orderBy('created_at', 'desc')
                         ->take(4)
                         ->get();
@@ -43,15 +43,13 @@ class DashboardController extends Controller
         ));
     }
 
-
     public function getBarangBaru()
     {
-        $barangBaru = Item::select('name', 'category_id', 'item_code', 'rack_location')
+        $barangBaru = Item::select('dscription', 'category_id', 'itemCode', 'rack_location')
                         ->orderBy('created_at', 'desc')
                         ->take(4)
                         ->get();
 
         return response()->json($barangBaru);
     }
-
 }

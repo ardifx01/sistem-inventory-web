@@ -20,10 +20,9 @@ class ItemController extends Controller
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('item_code', 'like', "%{$search}%")
-                    ->orWhere('barcode', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%")
+                $q->where('dscription', 'like', "%{$search}%")
+                    ->orWhere('itemCode', 'like', "%{$search}%")
+                    ->orWhere('codeBars', 'like', "%{$search}%")
                     ->orWhere('rack_location', 'like', "%{$search}%");
             });
         }
@@ -72,10 +71,9 @@ class ItemController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'name'          => 'required|string|max:255',
-            'item_code'     => 'required|string|max:100|unique:items,item_code',
-            'barcode'       => 'nullable|string|max:100|unique:items,barcode',
-            'description'   => 'nullable|string',
+            'dscription'    => 'required|string|max:255',
+            'itemCode'      => 'required|string|max:100|unique:items,itemCode',
+            'codeBars'      => 'nullable|string|max:100|unique:items,codeBars',
             'rack_location' => 'nullable|string|max:100',
             'category_id'   => 'required|exists:categories,id',
         ]);
@@ -98,20 +96,19 @@ class ItemController extends Controller
     public function update(Request $request, Item $item)
     {
         $validatedData = $request->validate([
-            'name'          => 'required|string|max:255',
-            'item_code'     => [
+            'dscription'    => 'required|string|max:255',
+            'itemCode'      => [
                 'required',
                 'string',
                 'max:100',
-                Rule::unique('items', 'item_code')->ignore($item->id),
+                Rule::unique('items', 'itemCode')->ignore($item->id),
             ],
-            'barcode'       => [
+            'codeBars'      => [
                 'nullable',
                 'string',
                 'max:100',
-                Rule::unique('items', 'barcode')->ignore($item->id),
+                Rule::unique('items', 'codeBars')->ignore($item->id),
             ],
-            'description'   => 'nullable|string',
             'rack_location' => 'nullable|string|max:100',
             'category_id'   => 'required|exists:categories,id',
         ]);

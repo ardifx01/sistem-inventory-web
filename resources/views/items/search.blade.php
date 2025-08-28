@@ -2,35 +2,36 @@
       class="bg-white/5 backdrop-blur rounded-xl border border-white/10 p-4 sm:p-5 relative">
     <div class="flex flex-col md:flex-row md:items-stretch md:justify-between gap-4">
 
-        {{-- Search & Scan Input --}}
-        <div class="flex flex-1 items-stretch h-full">
-            <input type="text" name="search" id="search"
-                   value="{{ request('search') }}"
-                   placeholder="Cari nama, kode item, atau barcode…"
-                   class="flex-1 px-4 h-10 rounded-l-lg border border-r-0 border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-900 dark:text-gray-200" />
-            
-            {{-- Tombol Cari --}}
-            <button type="submit" id="searchBtn"
-                    class="px-3 md:px-4 h-10 border border-gray-300 border-l-0 border-r-0 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
-                </svg>
-            </button>
-            
-            {{-- Tombol Scan --}}
-            <button type="button" id="openScannerBtn"
-                class="px-3 md:px-4 h-10 rounded-r-lg border border-l-0 border-gray-300 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                          d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
-                </svg>
-            </button>
-        </div>
+ {{-- Search & Scan Input --}}
+<div class="flex flex-1 items-stretch h-full">
+    <input type="text" name="search" id="search"
+           value="{{ request('search') }}"
+           placeholder="Cari deskripsi, itemCode, atau codeBars…"
+           class="flex-1 px-4 h-10 rounded-l-lg border border-r-0 border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-900 dark:text-gray-200" />
+    
+    {{-- Tombol Cari --}}
+    <button type="submit" id="searchBtn"
+            class="px-3 md:px-4 h-10 border border-gray-300 border-l-0 border-r-0 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
+        </svg>
+    </button>
+    
+    {{-- Tombol Scan --}}
+    <button type="button" id="openScannerBtn"
+        class="px-3 md:px-4 h-10 rounded-r-lg border border-l-0 border-gray-300 flex items-center justify-center hover:bg-gray-100 dark:hover:bg-gray-800">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M6.827 6.175A2.31 2.31 0 0 1 5.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 0 0-1.134-.175 2.31 2.31 0 0 1-1.64-1.055l-.822-1.316a2.192 2.192 0 0 0-1.736-1.039 48.774 48.774 0 0 0-5.232 0 2.192 2.192 0 0 0-1.736 1.039l-.821 1.316Z" />
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z" />
+        </svg>
+    </button>
+</div>
+
 
         {{-- Filter Kategori, ZIP, Reset --}}
         <div class="flex flex-wrap md:flex-nowrap items-center md:items-stretch gap-3 md:gap-4 h-full">
