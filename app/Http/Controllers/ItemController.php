@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\Category;
+use App\Rules\BarcodeFormat;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -73,9 +74,18 @@ class ItemController extends Controller
         $validatedData = $request->validate([
             'dscription'    => 'required|string|max:255',
             'itemCode'      => 'required|string|max:100|unique:items,itemCode',
-            'codeBars'      => 'nullable|string|max:100|unique:items,codeBars',
+            'codeBars'      => [
+                'nullable',
+                'string',
+                'max:100',
+                'unique:items,codeBars',
+                new BarcodeFormat()
+            ],
             'rack_location' => 'nullable|string|max:100',
             'category_id'   => 'required|exists:categories,id',
+        ], [
+            'codeBars.unique' => 'Barcode sudah digunakan oleh barang lain.',
+            'itemCode.unique' => 'Kode barang sudah digunakan.',
         ]);
 
         if (empty($validatedData['rack_location'])) {
@@ -108,9 +118,13 @@ class ItemController extends Controller
                 'string',
                 'max:100',
                 Rule::unique('items', 'codeBars')->ignore($item->id),
+                new BarcodeFormat()
             ],
             'rack_location' => 'nullable|string|max:100',
             'category_id'   => 'required|exists:categories,id',
+        ], [
+            'codeBars.unique' => 'Barcode sudah digunakan oleh barang lain.',
+            'itemCode.unique' => 'Kode barang sudah digunakan.',
         ]);
 
         if (empty($validatedData['rack_location'])) {

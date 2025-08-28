@@ -6,7 +6,7 @@
 <div class="flex flex-1 items-stretch h-full">
     <input type="text" name="search" id="search"
            value="{{ request('search') }}"
-           placeholder="Cari deskripsi, itemCode, atau codeBars…"
+           placeholder="Cari Nama Barang, Kode Item, atau Barcode"
            class="flex-1 px-4 h-10 rounded-l-lg border border-r-0 border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-900 dark:text-gray-200" />
     
     {{-- Tombol Cari --}}
