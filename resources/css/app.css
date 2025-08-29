@@ -1,3 +1,6 @@
+/* Import Sweet Alert Custom Styles */
+@import './sweetalert-custom.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

@@ -4,41 +4,64 @@ namespace App\Http\Controllers;
 
 use App\Models\Item;
 use App\Models\Category;
+use App\Rules\BarcodeFormat;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ItemController extends Controller
 {
+    /**
+     * Menampilkan daftar item dengan fitur filter dan pencarian.
+     */
     public function index(Request $request)
     {
-        $query = Item::query();
+        $query = Item::with('category');
 
+        // filter pencarian
         if ($request->filled('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                ->orWhere('item_code', 'like', "%{$search}%")
-                ->orWhere('barcode', 'like', "%{$search}%");
+            $query->where(function ($q) use ($search) {
+                $q->where('dscription', 'like', "%{$search}%")
+                    ->orWhere('itemCode', 'like', "%{$search}%")
+                    ->orWhere('codeBars', 'like', "%{$search}%")
+                    ->orWhere('rack_location', 'like', "%{$search}%");
             });
         }
 
-        // Filter kategori
-        if ($request->has('category_id') && !empty($request->category_id)) {
-            $query->where('category_id', $request->category_id);
+        // filter kategori
+        if ($request->has('categories') && !empty($request->categories)) {
+            $categoryIds = is_array($request->categories)
+                ? $request->categories
+                : explode(',', $request->categories);
+
+            $query->whereIn('category_id', $categoryIds);
         }
 
+        // filter rak "ZIP only"
         if ($request->boolean('zip_only')) {
             $query->where(function ($q) {
-                $q->whereNull('rack_location')
-                  ->orWhere('rack_location', 'ZIP');
+                $q->where('rack_location', 'ZIP')
+                    ->orWhereNull('rack_location');
             });
         }
 
-        $items = $query->latest()->paginate(10);
-        $categories = Category::all();
+        $items = $query->orderBy('created_at', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        // urutkan kategori → default selalu paling atas
+        $allCategories = Category::all();
+        $defaultCategory = $allCategories->firstWhere('is_default', true);
+        $otherCategories = $allCategories->filter(fn($cat) => !$cat->is_default)->sortBy('name');
+
+        $categories = collect();
+        if ($defaultCategory) {
+            $categories->push($defaultCategory);
+        }
+        $categories = $categories->merge($otherCategories);
 
         return view('items.index', compact('items', 'categories'));
     }
-
 
     public function create()
     {
@@ -48,32 +71,30 @@ class ItemController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name'        => 'required|string|max:255',
-            'item_code'   => 'required|string|max:255|unique:items,item_code',
-            'barcode'     => 'nullable|string|max:255|unique:items,barcode',
-            'description' => 'nullable|string',
-            'category_id' => 'required|exists:categories,id',
-            'rack_location' => 'nullable|string|max:255',
+        $validatedData = $request->validate([
+            'dscription'    => 'required|string|max:255',
+            'itemCode'      => 'required|string|max:100|unique:items,itemCode',
+            'codeBars'      => [
+                'nullable',
+                'string',
+                'max:100',
+                'unique:items,codeBars',
+                new BarcodeFormat()
+            ],
+            'rack_location' => 'nullable|string|max:100',
+            'category_id'   => 'required|exists:categories,id',
         ], [
-            'item_code.unique' => 'Kode item sudah terdaftar.',
-            'barcode.unique'   => 'Barcode sudah terdaftar.'
+            'codeBars.unique' => 'Barcode sudah digunakan oleh barang lain.',
+            'itemCode.unique' => 'Kode barang sudah digunakan.',
         ]);
 
-        // Kalau rack_location kosong → isi ZIP
-        if (empty($validated['rack_location'])) {
-            $validated['rack_location'] = 'ZIP';
+        if (empty($validatedData['rack_location'])) {
+            $validatedData['rack_location'] = 'ZIP';
         }
 
-        Item::create($validated);
+        Item::create($validatedData);
 
         return redirect()->route('items.index')->with('success', 'Barang berhasil ditambahkan.');
-    }
-
-    public function show(Item $item)
-    {
-        $item->load('category');
-        return response()->json($item); // untuk pop up detail via AJAX
     }
 
     public function edit(Item $item)
@@ -84,39 +105,55 @@ class ItemController extends Controller
 
     public function update(Request $request, Item $item)
     {
-        $validated = $request->validate([
-            'name'        => 'required|string|max:255',
-            'item_code'   => 'required|string|max:255|unique:items,item_code,' . $item->id,
-            'barcode'     => 'nullable|string|max:255|unique:items,barcode,' . $item->id,
-            'description' => 'nullable|string',
-            'category_id' => 'required|exists:categories,id',
-            'rack_location' => 'nullable|string|max:255',
+        $validatedData = $request->validate([
+            'dscription'    => 'required|string|max:255',
+            'itemCode'      => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('items', 'itemCode')->ignore($item->id),
+            ],
+            'codeBars'      => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('items', 'codeBars')->ignore($item->id),
+                new BarcodeFormat()
+            ],
+            'rack_location' => 'nullable|string|max:100',
+            'category_id'   => 'required|exists:categories,id',
         ], [
-            'item_code.unique' => 'Kode item sudah terdaftar.',
-            'barcode.unique'   => 'Barcode sudah terdaftar.'
+            'codeBars.unique' => 'Barcode sudah digunakan oleh barang lain.',
+            'itemCode.unique' => 'Kode barang sudah digunakan.',
         ]);
 
-        if (empty($validated['rack_location'])) {
-            $validated['rack_location'] = 'ZIP';
+        if (empty($validatedData['rack_location'])) {
+            $validatedData['rack_location'] = 'ZIP';
         }
 
-        $item->update($validated);
+        $item->update($validatedData);
 
         return redirect()->route('items.index')->with('success', 'Barang berhasil diperbarui.');
     }
-
-    public function bulkDelete(Request $request)
-    {
-        $ids = explode(',', $request->ids);
-        Item::whereIn('id', $ids)->delete();
-        return redirect()->route('items.index')->with('success', 'Barang terpilih berhasil dihapus');
-    }
-
-
 
     public function destroy(Item $item)
     {
         $item->delete();
         return redirect()->route('items.index')->with('success', 'Barang berhasil dihapus.');
+    }
+
+    public function bulkDelete(Request $request)
+    {
+        $validated = $request->validate([
+            'ids'   => ['required', 'array'],
+            'ids.*' => ['integer', 'exists:items,id'],
+        ], [
+            'ids.required' => 'Tidak ada item yang dipilih untuk dihapus.',
+        ]);
+
+        $ids = $validated['ids'];
+        Item::whereIn('id', $ids)->delete();
+
+        return redirect()->route('items.index')->with('success', count($ids) . ' item berhasil dihapus.');
     }
 }

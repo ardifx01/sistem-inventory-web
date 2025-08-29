@@ -8,11 +8,14 @@ use App\Models\Category;
 
 class CategorySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
+
+        Category::firstOrCreate([
+            'name' => 'Belum Dikategorikan',
+            'is_default' => true,
+        ]);
+
         Category::create(['name' => 'Kosmetik dan Skincare']);
         Category::create(['name' => 'Healthcare']);
         Category::create(['name' => 'Babycare']);

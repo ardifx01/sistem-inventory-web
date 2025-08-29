@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LogController;
 use App\Http\Controllers\ItemController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\RackController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ResetPasswordController;
@@ -42,15 +43,31 @@ Route::middleware('auth')->group(function () {
 Route::middleware('auth')->group(function () {
     Route::get('/items', [ItemController::class, 'index'])->name('items.index');
 
-    // CRUD khusus admin & superadmin
     Route::middleware('role:admin,superadmin')->group(function () {
+        // CRUD Barang
         Route::get('/items/create', [ItemController::class, 'create'])->name('items.create');
         Route::post('/items', [ItemController::class, 'store'])->name('items.store');
         Route::get('/items/{item}/edit', [ItemController::class, 'edit'])->name('items.edit');
         Route::put('/items/{item}', [ItemController::class, 'update'])->name('items.update');
+
+        // Bulk delete harus sebelum single delete
         Route::delete('/items/bulk-delete', [ItemController::class, 'bulkDelete'])->name('items.bulkDelete');
         Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
     });
+});
+
+// -------------------------
+// Kategori (Categories)
+// -------------------------
+Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
+    Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+    Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+    // API: hitung jumlah item di kategori
+    Route::get('/categories/{category}/item-count', [CategoryController::class, 'itemCount'])
+        ->name('categories.itemCount');
 });
 
 // -------------------------

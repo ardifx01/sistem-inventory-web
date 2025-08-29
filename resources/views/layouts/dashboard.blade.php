@@ -34,8 +34,8 @@
         <div id="barang-baru-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             @foreach($barangBaru as $barang)
                 <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-6 shadow text-center min-h-[140px] flex flex-col justify-center">
-                    <h4 class="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-1 break-words">{{ $barang->name }}</h4>
-                    <p class="text-base text-gray-600 dark:text-gray-300">Kode: {{ $barang->item_code }}</p>
+                    <h4 class="font-semibold text-lg text-gray-800 dark:text-gray-200 mb-1 break-words">{{ $barang->dscription }}</h4>
+                    <p class="text-base text-gray-600 dark:text-gray-300">Kode: {{ $barang->itemCode }}</p>
                     <p class="text-base text-gray-600 dark:text-gray-300">Rak: {{ $barang->rack_location ?? '-' }}</p>
                 </div>
             @endforeach
@@ -54,8 +54,8 @@
                 data.forEach(item => {
                     html += `
                         <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-4 shadow text-center">
-                            <h4 class="font-semibold text-gray-800 dark:text-gray-200 truncate">${item.name}</h4>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Kode: ${item.item_code}</p>
+                            <h4 class="font-semibold text-gray-800 dark:text-gray-200 truncate">${item.dscription}</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Kode: ${item.itemCode}</p>
                             <p class="text-sm text-gray-500 dark:text-gray-400">Rak: ${item.rack_location ?? '-'}</p>
                         </div>
                     `;
