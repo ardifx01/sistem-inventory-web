@@ -32,6 +32,26 @@
             + Tambah Barang
         </a>
 
+        <form action="{{ route('items.import') }}" method="POST" enctype="multipart/form-data" class="ml-2">
+            @csrf
+            <input type="file" name="files[]" accept=".xlsx,.xls,.csv" id="importFileInput" multiple class="hidden">
+            <button type="button" id="importBtn"
+                    class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 text-sm">
+                Import
+            </button>
+            <button type="submit" id="submitImportBtn" class="hidden"></button>
+        </form>
+
+        <script>
+            document.getElementById('importBtn').addEventListener('click', function(){
+                document.getElementById('importFileInput').click();
+            });
+
+            document.getElementById('importFileInput').addEventListener('change', function(){
+                document.getElementById('submitImportBtn').click();
+            });
+        </script>
+
         <div class="ml-auto flex items-center">
             {{-- Tombol 'Hapus Terpilih' akan muncul/sembunyi via JS --}}
             <button id="deleteSelectedBtn" type="button"
@@ -49,6 +69,8 @@
     </div>
     @endif
 
+    
+    
     {{-- Tabel --}}
     <div class="bg-white dark:bg-gray-800 shadow rounded-xl border border-gray-200/20 overflow-hidden">
         <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">

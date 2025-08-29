@@ -53,6 +53,9 @@ Route::middleware('auth')->group(function () {
         // Bulk delete harus sebelum single delete
         Route::delete('/items/bulk-delete', [ItemController::class, 'bulkDelete'])->name('items.bulkDelete');
         Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
+        Route::delete('/items/delete-all', [ItemController::class, 'deleteAll'])->name('items.deleteAll');
+        Route::post('/items/import', [ItemController::class, 'import'])->name('items.import');
+
     });
 });
 

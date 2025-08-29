@@ -11,17 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('items', function (Blueprint $table) {
-            // Rename kolom sesuai format baru
-            $table->renameColumn('name', 'dscription');
-            $table->renameColumn('item_code', 'itemCode'); 
-            $table->renameColumn('barcode', 'codeBars');
-        });
+        // Schema::table('items', function (Blueprint $table) {
+        //     // Rename kolom sesuai format baru
+        //     $table->renameColumn('name', 'dscription');
+        //     $table->renameColumn('item_code', 'itemCode'); 
+        //     $table->renameColumn('barcode', 'codeBars');
+        // });
         
-        // Ubah codeBars menjadi nullable
-        Schema::table('items', function (Blueprint $table) {
-            $table->string('codeBars')->nullable()->change();
-        });
+        // // Ubah codeBars menjadi nullable
+        // Schema::table('items', function (Blueprint $table) {
+        //     $table->string('codeBars')->nullable()->change();
+        // });
     }
 
     /**
@@ -29,16 +29,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('items', function (Blueprint $table) {
-            // Kembalikan nama kolom ke format lama
-            $table->renameColumn('dscription', 'name');
-            $table->renameColumn('itemCode', 'item_code');
-            $table->renameColumn('codeBars', 'barcode');
-        });
+    //     Schema::table('items', function (Blueprint $table) {
+    //         // Kembalikan nama kolom ke format lama
+    //         $table->renameColumn('dscription', 'name');
+    //         $table->renameColumn('itemCode', 'item_code');
+    //         $table->renameColumn('codeBars', 'barcode');
+    //     });
         
-        // Kembalikan codeBars menjadi not null
-        Schema::table('items', function (Blueprint $table) {
-            $table->string('barcode')->nullable(false)->change();
-        });
+    //     // Kembalikan codeBars menjadi not null
+    //     Schema::table('items', function (Blueprint $table) {
+    //         $table->string('barcode')->nullable(false)->change();
+    //     });
     }
 };

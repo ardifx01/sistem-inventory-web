@@ -7,6 +7,9 @@ use App\Models\Category;
 use App\Rules\BarcodeFormat;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ItemsImport;
+
 
 class ItemController extends Controller
 {
@@ -156,4 +159,34 @@ class ItemController extends Controller
 
         return redirect()->route('items.index')->with('success', count($ids) . ' item berhasil dihapus.');
     }
+
+    public function deleteAll(Request $request)
+    {
+        // Kalau mau semua barang tanpa filter:
+        Item::truncate();
+
+        // Kalau mau hapus semua sesuai filter kategori pencarian:
+        // Item::whereIn('category_id', $request->categories ?? [])->delete();
+
+        return back()->with('success', 'Semua barang berhasil dihapus!');
+    }
+
+    public function import(Request $request)
+    {
+        // Validasi: harus ada file, tipe xls/xlsx/csv, dan bisa multiple
+        $request->validate([
+            'files.*' => 'required|mimes:xls,xlsx,csv',
+        ]);
+
+        // Cek apakah ada file
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                Excel::import(new \App\Imports\ItemsImport, $file);
+            }
+        }
+
+        return redirect()->route('items.index')->with('success', 'File berhasil diimport!');
+    }
+
+
 }
