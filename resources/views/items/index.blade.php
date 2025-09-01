@@ -143,6 +143,32 @@
 </tbody>
 
             </table>
+@if(session('import_success') !== null)
+    <script>
+        Swal.fire({
+            title: 'Import Selesai',
+            html: `
+                <b>Berhasil:</b> {{ session('import_success') }} item<br>
+                <b>Gagal:</b> {{ session('import_failed') }} item<br>
+                @if(session('failed_items') && count(session('failed_items')) > 0)
+                    <br><b>Item gagal:</b> {{ implode(', ', session('failed_items')) }}
+                @endif
+            `,
+            icon: '{{ session('import_failed') > 0 ? 'warning' : 'success' }}',
+        });
+    </script>
+@endif
+
+@if(session('error'))
+    <script>
+        Swal.fire({
+            title: 'Error',
+            text: "{{ session('error') }}",
+            icon: 'error',
+        });
+    </script>
+@endif
+
         </div>
 
         <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700">

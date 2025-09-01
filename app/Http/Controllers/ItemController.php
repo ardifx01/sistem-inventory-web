@@ -171,26 +171,38 @@ class ItemController extends Controller
         return back()->with('success', 'Semua barang berhasil dihapus!');
     }
 
-    public function import(Request $request)
-    {
-        // Validasi: harus ada file, tipe xls/xlsx/csv, dan bisa multiple
-        $request->validate([
-            'files.*' => 'required|mimes:xls,xlsx,csv',
-        ]);
+public function import(Request $request)
+{
+    $request->validate([
+        'files.*' => 'required|mimes:xls,xlsx,csv',
+    ]);
 
-        try {
-            // Cek apakah ada file
-            if ($request->hasFile('files')) {
-                foreach ($request->file('files') as $file) {
-                    Excel::import(new \App\Imports\ItemsImport, $file);
-                }
+    try {
+        $successTotal = 0;
+        $failedTotal  = 0;
+        $failedItems  = [];
+
+        if ($request->hasFile('files')) {
+            foreach ($request->file('files') as $file) {
+                $import = new \App\Imports\ItemsImport;
+                \Maatwebsite\Excel\Facades\Excel::import($import, $file);
+
+                $successTotal += $import->successCount;
+                $failedTotal  += $import->failedCount;
+                $failedItems  = array_merge($failedItems, $import->failedItems);
             }
-
-            return redirect()->route('items.index')->with('success', 'File berhasil diimport!');
-        } catch (\Exception $e) {
-            return redirect()->route('items.index')->with('error', 'Gagal import file: ' . $e->getMessage());
         }
+
+        return redirect()->route('items.index')->with([
+            'import_success' => $successTotal,
+            'import_failed'  => $failedTotal,
+            'failed_items'   => $failedItems,
+        ]);
+    } catch (\Exception $e) {
+        return redirect()->route('items.index')->with('error', 'Gagal import file: ' . $e->getMessage());
     }
+}
+
 
 
 }
