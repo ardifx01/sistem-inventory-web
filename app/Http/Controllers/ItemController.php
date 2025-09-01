@@ -178,14 +178,18 @@ class ItemController extends Controller
             'files.*' => 'required|mimes:xls,xlsx,csv',
         ]);
 
-        // Cek apakah ada file
-        if ($request->hasFile('files')) {
-            foreach ($request->file('files') as $file) {
-                Excel::import(new \App\Imports\ItemsImport, $file);
+        try {
+            // Cek apakah ada file
+            if ($request->hasFile('files')) {
+                foreach ($request->file('files') as $file) {
+                    Excel::import(new \App\Imports\ItemsImport, $file);
+                }
             }
-        }
 
-        return redirect()->route('items.index')->with('success', 'File berhasil diimport!');
+            return redirect()->route('items.index')->with('success', 'File berhasil diimport!');
+        } catch (\Exception $e) {
+            return redirect()->route('items.index')->with('error', 'Gagal import file: ' . $e->getMessage());
+        }
     }
 
 
