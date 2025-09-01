@@ -16,26 +16,14 @@
         popupY: 0,
         show: false,
         timeout: null,
-<<<<<<< HEAD
-        category: 'pieces',
-        racks: @js(array_map(fn($i) => $selectedArea . '-' . $pad2($i), range(1, $columns))),
-=======
         columns: {{ $columns }},
->>>>>>> f3abefb12cb5318269788d23d63f5f81d6ece192
         slots: {{ $positions }},
 
         get levels() {
-            if (this.category === 'lower') return 1;
-            if (this.category === 'bulky') return 2;
+            if (this.category === 'lower') return 2;
+            if (this.category === 'bulky') return 3;
             return 5; // default pieces
         },
-<<<<<<< HEAD
-        showPopup(rack, level, slot, el) {
-            clearTimeout(this.timeout);
-            this.selectedRack = rack;
-            this.selectedLevel = level;
-            this.selectedSlot = rack + '-L' + level + '-S' + slot;
-=======
         get categoryCode() {
             if (this.category === 'pieces') return 'P';
             if (this.category === 'bulky') return 'B';
@@ -55,7 +43,6 @@
             this.selectedRack  = rack;
             this.selectedLevel = level;
             this.selectedSlot  = rack + '-' + String(level).padStart(2, '0') + '-' + String(slot).padStart(2, '0');
->>>>>>> f3abefb12cb5318269788d23d63f5f81d6ece192
 
             let rect = el.getBoundingClientRect();
             this.popupX = rect.left + window.scrollX + rect.width / 2;
@@ -65,29 +52,20 @@
         },
         hidePopup() {
             clearTimeout(this.timeout);
-<<<<<<< HEAD
-            this.timeout = setTimeout(() => this.show = false, 150); // delay 150ms biar smooth
-=======
             this.timeout = setTimeout(() => this.show = false, 150);
->>>>>>> f3abefb12cb5318269788d23d63f5f81d6ece192
         }
      }">
 
     <!-- Header -->
     <div class="text-center mb-6">
-<<<<<<< HEAD
-        <h2 class="text-2xl font-bold">Contoh Rak Gudang</h2>
-        <p >Arahkan kursor ke slot untuk melihat detail</p>
-=======
         <h2 class="text-2xl font-bold">Daftar Rak Gudang</h2>
         <p class="text-gray-500">Arahkan kursor ke slot untuk melihat detail</p>
->>>>>>> f3abefb12cb5318269788d23d63f5f81d6ece192
     </div>
 
     <!-- Dropdown Jenis Rak -->
     <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
         <div class="flex items-center gap-2">
-            <label for="rackType" class="font-semibold">Pilih Jenis Rak</label>
+            <label for="rackType" class="font-semibold">Pilih Kategori Rak</label>
             <select id="rackType" x-model="category"
                 class="border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-gray-200">
                 <option value="pieces">Pieces (P)</option>
@@ -114,8 +92,8 @@
                                 <!-- Slot barang -->
                                 <div class="flex gap-1 p-1">
                                     <template x-for="slot in slots" :key="slot">
-                                        <div class="w-12 h-20 cursor-crosshair transition transform hover:-translate-y-1
-                                            flex items-center justify-center text-xs font-semibold rounded-sm border border-gray-500 relative"
+                                        <div class="w-12 h-20 cursor-pointer transition transform hover:-translate-y-1
+                                            flex items-center justify-center text-xs font-semibold rounded-sm border border-gray-500"
                                             :class="{
                                                 'bg-yellow-400 text-black shadow-lg': selectedSlot === (rack + '-' + String(level).padStart(2,'0') + '-' + String(slot).padStart(2,'0')),
                                                 'bg-gradient-to-b from-gray-200 to-gray-400 shadow-md hover:shadow-lg 
@@ -152,7 +130,7 @@
             <h3 class="font-semibold mb-2">Detail Kolom</h3>
             <p><strong>Rak:</strong> <span x-text="selectedRack"></span></p>
             <p><strong>Level:</strong> <span x-text="selectedLevel"></span></p>
-            <p><strong>Kode Barang:</strong> <span x-text="selectedSlot"></span></p>
+            <p><strong>Slot:</strong> <span x-text="selectedSlot"></span></p>
 
             <!-- Arrow -->
             <div class="absolute left-1/2 bottom-[-6px] -translate-x-1/2 
