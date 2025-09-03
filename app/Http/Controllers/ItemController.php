@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\ItemsImport;
+use App\Exports\ItemsTemplateExport;
 
 
 class ItemController extends Controller
@@ -201,6 +202,12 @@ public function import(Request $request)
     } catch (\Exception $e) {
         return redirect()->route('items.index')->with('error', 'Gagal import file: ' . $e->getMessage());
     }
+}
+
+
+public function downloadTemplate()
+{
+    return Excel::download(new ItemsTemplateExport, 'template_import_items.xlsx');
 }
 
 
