@@ -55,7 +55,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/items/{item}', [ItemController::class, 'destroy'])->name('items.destroy');
         Route::delete('/items/delete-all', [ItemController::class, 'deleteAll'])->name('items.deleteAll');
         Route::post('/items/import', [ItemController::class, 'import'])->name('items.import');
-
+        Route::get('/items/download-template', [\App\Http\Controllers\ItemController::class, 'downloadTemplate'])->name('items.downloadTemplate');
+        
     });
 });
 

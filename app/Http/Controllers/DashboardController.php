@@ -19,11 +19,13 @@ class DashboardController extends Controller
 
         // Total Rak
         $totalRak = Item::whereNotNull('rack_location')
-                        ->where('rack_location', '!=', '')
-                        ->where('rack_location', '!=', 'ZIP')
-                        ->selectRaw("DISTINCT SUBSTRING_INDEX(rack_location, '-', 1) as rak_prefix")
-                        ->get()
-                        ->count();
+            ->where('rack_location', '!=', '')
+            ->where('rack_location', '!=', 'ZIP')
+            ->selectRaw("DISTINCT SUBSTRING_INDEX(rack_location, '-', -1) as rak_suffix")
+            ->get()
+            ->count();
+
+
 
         // Barang Belum Masuk Rak
         $belumMasukRak = Item::where('rack_location', 'ZIP')->count();
