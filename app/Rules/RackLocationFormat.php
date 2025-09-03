@@ -13,14 +13,14 @@ class RackLocationFormat implements ValidationRule
             return; // Allow empty/null values
         }
 
-        // Check ZIP format first
+        // Check ZIP format first (ZIP boleh duplikat)
         if ($value === 'ZIP') {
             return;
         }
 
         // Regular format validation
         if (!preg_match('/^[PBL]\d{2}-\d{2}-\d{2}-\d{2}$/', $value)) {
-            $fail('Format lokasi rak tidak valid. Gunakan format (P/B/L)XX-XX-XX-XX atau ZIP.');
+            $fail('Format lokasi rak tidak valid. Gunakan format (P/B/L)XX-XX-XX-XX atau ZIP (ZIP dapat duplikat sebagai penampung default).');
             return;
         }
 

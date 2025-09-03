@@ -15,6 +15,7 @@ class Item extends Model
         'codeBars',
         // 'description',
         'rack_location', // tambahkan kolom location
+        'rack_location_unique', // kolom helper untuk unique constraint yang mengecualikan ZIP
         'category_id', // tambahkan supaya bisa mass assign
     ];
 

@@ -6,6 +6,30 @@ use App\Models\Item;
 
 class ItemObserver
 {
+    public function creating(Item $item)
+    {
+        // Set default rack_location ke ZIP jika kosong
+        if (empty($item->rack_location)) {
+            $item->rack_location = 'ZIP';
+        }
+        
+        // Sync rack_location_unique
+        $this->syncRackLocationUnique($item);
+    }
+
+    public function updating(Item $item)
+    {
+        // Set default rack_location ke ZIP jika kosong
+        if (empty($item->rack_location)) {
+            $item->rack_location = 'ZIP';
+        }
+        
+        // Sync rack_location_unique jika rack_location berubah
+        if ($item->isDirty('rack_location')) {
+            $this->syncRackLocationUnique($item);
+        }
+    }
+
     public function created(Item $item)
     {
         activity()
@@ -33,5 +57,15 @@ class ItemObserver
             ->causedBy(auth()->user())
             ->performedOn($item)
             ->log('Menghapus barang');
+    }
+
+    /**
+     * Sinkronkan rack_location_unique berdasarkan rack_location
+     */
+    private function syncRackLocationUnique(Item $item): void
+    {
+        // Jika ZIP, set rack_location_unique ke null
+        // Jika bukan ZIP, set rack_location_unique sama dengan rack_location
+        $item->rack_location_unique = ($item->rack_location === 'ZIP') ? null : $item->rack_location;
     }
 }

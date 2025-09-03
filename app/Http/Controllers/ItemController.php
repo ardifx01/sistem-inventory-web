@@ -6,6 +6,7 @@ use App\Models\Item;
 use App\Models\Category;
 use App\Rules\BarcodeFormat;
 use App\Rules\RackLocationFormat;
+use App\Rules\RackLocationUniqueExceptZip;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
@@ -89,7 +90,7 @@ class ItemController extends Controller
                 'nullable',
                 'string',
                 'max:100',
-                'unique:items,rack_location',
+                new RackLocationUniqueExceptZip(),
                 new RackLocationFormat()
             ],
             'category_id'   => 'required|exists:categories,id',
@@ -134,7 +135,7 @@ class ItemController extends Controller
                 'nullable',
                 'string',
                 'max:100',
-                Rule::unique('items', 'rack_location')->ignore($item->id),
+                new RackLocationUniqueExceptZip($item->id),
                 new RackLocationFormat()
             ],
             'category_id'   => 'required|exists:categories,id',
