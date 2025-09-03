@@ -1,5 +1,46 @@
 @extends('layouts.app')
 
+@section('styles')
+<style>
+    select#category_id {
+        appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.7rem center;
+        background-size: 1em;
+    }
+
+    /* Styling untuk dropdown popup */
+    select#category_id option {
+        padding: 8px 12px;
+    }
+
+    /* Khusus untuk Chrome/Safari/Modern Browsers */
+    select#category_id::-webkit-listbox {
+        max-height: 280px !important;
+    }
+
+    @media screen and (-webkit-min-device-pixel-ratio: 0) {
+        select#category_id {
+            overflow: -moz-hidden-unscrollable;
+            overflow: hidden;
+        }
+    }
+
+    /* Untuk Firefox */
+    @-moz-document url-prefix() {
+        select#category_id {
+            overflow: -moz-hidden-unscrollable;
+            overflow: hidden;
+        }
+        
+        select#category_id option {
+            max-height: 280px;
+        }
+    }
+</style>
+@endsection
+
 @section('header')
 <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
     {{ __('Edit Barang') }}
@@ -8,17 +49,17 @@
 
 @section('content')
 <div class="py-6">
-    <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg p-6">
+            <div class="max-w-2xl mx-auto">
+                <h2 class="text-2xl font-bold mb-4 text-center">Edit Barang</h2>
 
-            <h2 class="text-2xl font-bold mb-4 text-center">Edit Barang</h2>
-
-            {{-- Notifikasi sukses --}}
-            @if(session('success'))
-                <div class="bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200 p-4 rounded mb-4">
-                    {{ session('success') }}
-                </div>
-            @endif
+                {{-- Notifikasi sukses --}}
+                @if(session('success'))
+                    <div class="bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200 p-4 rounded mb-4">
+                        {{ session('success') }}
+                    </div>
+                @endif
 
             <!-- {{-- Notifikasi error global --}}
             @if ($errors->any())
@@ -80,26 +121,107 @@
                 {{-- Kategori --}}
                 <div class="mt-4">
                     <x-input-label for="category_id" :value="__('Kategori')" />
-                    <select id="category_id" name="category_id"
-                            class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                            required>
-                        <option value="">-- Pilih Kategori --</option>
-                        @foreach($categories as $category)
-                            <option value="{{ $category->id }}" {{ old('category_id', $item->category_id) == $category->id ? 'selected' : '' }}>
-                                {{ $category->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <div class="flex gap-2">
+                        <div class="relative flex-1">
+                            <select id="category_id" name="category_id"
+                                    class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700
+                                           dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500
+                                           focus:ring-indigo-500"
+                                    required>
+                                <option value="">-- Pilih Kategori --</option>
+                                @foreach($categories as $category)
+                                    <option value="{{ $category->id }}" 
+                                            {{ old('category_id', $item->category_id) == $category->id ? 'selected' : '' }}>
+                                        {{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
                     <x-input-error :messages="$errors->get('category_id')" class="mt-2" />
                 </div>
 
                 {{-- Lokasi Rak --}}
-                <div class="mt-4">
-                    <x-input-label for="rack_location" :value="__('Lokasi Rak (Opsional)')" />
-                    <x-text-input id="rack_location" class="block mt-1 w-full rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                  type="text" name="rack_location" value="{{ old('rack_location', $item->rack_location) }}"
-                                  placeholder="Contoh: P01-01-02-01" />
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Jika kosong, otomatis akan menjadi <strong>ZIP</strong></p>
+                <div class="mt-4" x-data="rackLocationInput('{{ old('rack_location', $item->rack_location) }}')">
+                    <x-input-label value="Lokasi Rak (Opsional)" />
+                    <div class="flex flex-wrap items-center gap-2 mt-1 w-full">
+                        <!-- Type -->
+                        <select x-model="type" name="rack_type" 
+                            class="w-32 rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 
+                                   focus:border-indigo-500 focus:ring-indigo-500">
+                            <option value="P">P (Piece)</option>
+                            <option value="B">B (Bulky)</option>
+                            <option value="L">L (Lower)</option>
+                            <option value="ZIP">ZIP</option>
+                        </select>
+
+                        <!-- Section -->
+                        <div class="flex items-center flex-1 min-w-[200px]">
+                            <input type="text" 
+                                id="section" 
+                                class="w-20 text-center rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 
+                                       dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500" 
+                                x-model="section"
+                                data-model="section"
+                                :disabled="type === 'ZIP'"
+                                @input="formatInput($event, 'rack')"
+                                maxlength="2"
+                                placeholder="Section"
+                            >
+
+                            <span class="mx-2 text-gray-500 dark:text-gray-400">-</span>
+
+                            <!-- Rack -->
+                            <input type="text" 
+                                id="rack" 
+                                class="w-20 text-center rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 
+                                       dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500" 
+                                x-model="rack"
+                                data-model="rack"
+                                :disabled="type === 'ZIP'"
+                                @input="formatInput($event, 'level')"
+                                maxlength="2"
+                                placeholder="Rack"
+                            >
+
+                            <span class="mx-2 text-gray-500 dark:text-gray-400">-</span>
+
+                            <!-- Level -->
+                            <input type="text" 
+                                id="level" 
+                                class="w-20 text-center rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 
+                                       dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500" 
+                                x-model="level"
+                                data-model="level"
+                                :disabled="type === 'ZIP'"
+                                @input="formatInput($event, 'column')"
+                                maxlength="2"
+                                placeholder="Level"
+                            >
+
+                            <span class="mx-2 text-gray-500 dark:text-gray-400">-</span>
+
+                            <!-- Column -->
+                            <input type="text" 
+                                id="column" 
+                                class="w-20 text-center rounded-md border-gray-300 dark:border-gray-700 dark:bg-gray-900 
+                                       dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500" 
+                                x-model="column"
+                                data-model="column"
+                                :disabled="type === 'ZIP'"
+                                @input="formatInput($event)"
+                                maxlength="2"
+                                placeholder="Column"
+                            >
+                        </div>
+
+                        <!-- Preview -->
+                        <input type="hidden" name="rack_location" x-model="preview">
+                        <div class="w-full mt-2">
+                            <span class="text-gray-500 dark:text-gray-400" x-text="preview ? 'Format: ' + preview : 'Preview lokasi rak'"></span>
+                        </div>
+                    </div>
+                    <x-input-error :messages="$errors->get('rack_location')" class="mt-2" />
                 </div>
 
                 {{-- Tombol Aksi --}}
@@ -119,6 +241,77 @@
         </div>
     </div>
 </div>
+
+{{-- Script Rack Location --}}
+<script>
+    function rackLocationInput(initialValue = '') {
+        return {
+            type: 'P',
+            section: '',
+            rack: '',
+            level: '',
+            column: '',
+            preview: '',
+            
+            init() {
+                // Parse initial value if provided
+                if (initialValue) {
+                    if (initialValue === 'ZIP') {
+                        this.type = 'ZIP';
+                    } else {
+                        const match = initialValue.match(/^([PBL])(\d{2})-(\d{2})-(\d{2})-(\d{2})$/);
+                        if (match) {
+                            [, this.type, this.section, this.rack, this.level, this.column] = match;
+                        }
+                    }
+                }
+                
+                this.updatePreview();
+                
+                // Watch for changes
+                this.$watch('type', () => this.updatePreview());
+                this.$watch('section', () => this.updatePreview());
+                this.$watch('rack', () => this.updatePreview());
+                this.$watch('level', () => this.updatePreview());
+                this.$watch('column', () => this.updatePreview());
+            },
+
+            formatInput(event, nextId) {
+                let input = event.target;
+                let value = input.value.replace(/\D/g, ''); // Remove non-digits
+                
+                if (value.length > 2) {
+                    value = value.substring(0, 2);
+                }
+                
+                // Update the model
+                this[input.dataset.model] = value;
+                
+                // Move to next input if value is 2 digits
+                if (value.length === 2 && nextId) {
+                    document.getElementById(nextId).focus();
+                }
+            },
+
+            updatePreview() {
+                if (this.type === 'ZIP') {
+                    this.preview = 'ZIP';
+                    this.section = '';
+                    this.rack = '';
+                    this.level = '';
+                    this.column = '';
+                    return;
+                }
+
+                if (this.section && this.rack && this.level && this.column) {
+                    this.preview = `${this.type}${this.section}-${this.rack}-${this.level}-${this.column}`;
+                } else {
+                    this.preview = '';
+                }
+            }
+        }
+    }
+</script>
 
 {{-- Script Barcode Scanner --}}
 <script src="https://unpkg.com/@zxing/library@latest"></script>

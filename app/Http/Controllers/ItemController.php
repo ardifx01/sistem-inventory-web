@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Item;
 use App\Models\Category;
 use App\Rules\BarcodeFormat;
+use App\Rules\RackLocationFormat;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
@@ -84,7 +85,13 @@ class ItemController extends Controller
                 'unique:items,codeBars',
                 new BarcodeFormat()
             ],
-            'rack_location' => 'nullable|string|max:100',
+            'rack_location' => [
+                'nullable',
+                'string',
+                'max:100',
+                'unique:items,rack_location',
+                new RackLocationFormat()
+            ],
             'category_id'   => 'required|exists:categories,id',
         ], [
             'codeBars.unique' => 'Barcode sudah digunakan oleh barang lain.',
@@ -123,7 +130,13 @@ class ItemController extends Controller
                 Rule::unique('items', 'codeBars')->ignore($item->id),
                 new BarcodeFormat()
             ],
-            'rack_location' => 'nullable|string|max:100',
+            'rack_location' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::unique('items', 'rack_location')->ignore($item->id),
+                new RackLocationFormat()
+            ],
             'category_id'   => 'required|exists:categories,id',
         ], [
             'codeBars.unique' => 'Barcode sudah digunakan oleh barang lain.',
