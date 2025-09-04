@@ -5,7 +5,6 @@ export function initBulkActions() {
     const tambahBarangBtn = document.getElementById('tambahBarangBtn');
     const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
     const selectAll = document.getElementById('selectAll');
-    const itemCheckboxes = document.querySelectorAll('.itemCheckbox');
     const bulkDeleteForm = document.getElementById('bulk-delete-form');
 
     function toggleActionButtons() {
@@ -25,13 +24,17 @@ export function initBulkActions() {
     });
 
     selectAll?.addEventListener('change', function () {
-        itemCheckboxes.forEach(cb => { cb.checked = this.checked; });
+        // Dynamically query for current itemCheckboxes instead of using static variable
+        const currentItemCheckboxes = document.querySelectorAll('.itemCheckbox');
+        currentItemCheckboxes.forEach(cb => { cb.checked = this.checked; });
         toggleActionButtons();
     });
 
     deleteSelectedBtn?.addEventListener('click', (e) => {
         e.preventDefault();
-        const selectedIds = Array.from(itemCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
+        // Dynamically query for current itemCheckboxes instead of using static variable
+        const currentItemCheckboxes = document.querySelectorAll('.itemCheckbox');
+        const selectedIds = Array.from(currentItemCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
 
         if (selectedIds.length === 0) {
             showNotification('Tidak ada item yang dipilih.', 'error');
@@ -110,8 +113,9 @@ export function reinitializeBulkActions() {
     }
     
     function handleSelectAllBulk() {
-        const itemCheckboxes = document.querySelectorAll('.itemCheckbox');
-        itemCheckboxes.forEach(cb => { cb.checked = selectAll.checked; });
+        // Dynamically query for current itemCheckboxes instead of using static variable
+        const currentItemCheckboxes = document.querySelectorAll('.itemCheckbox');
+        currentItemCheckboxes.forEach(cb => { cb.checked = selectAll.checked; });
         toggleActionButtons();
     }
     
