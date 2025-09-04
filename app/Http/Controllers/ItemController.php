@@ -23,24 +23,25 @@ class ItemController extends Controller
     {
         $query = Item::with('category');
 
-        // filter pencarian
+        // search dscription, itemCode, codeBars, category.name
         if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('dscription', 'like', "%{$search}%")
-                    ->orWhere('itemCode', 'like', "%{$search}%")
-                    ->orWhere('codeBars', 'like', "%{$search}%")
-                    ->orWhere('rack_location', 'like', "%{$search}%");
+            $searchTerm = $request->input('search');
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('dscription', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('itemCode', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('codeBars', 'like', '%' . $searchTerm . '%')
+                    ->orWhereHas('category', function ($categoryQuery) use ($searchTerm) {
+                        $categoryQuery->where('name', 'like', '%' . $searchTerm . '%');
+                    });
             });
         }
 
         // filter kategori
-        if ($request->has('categories') && !empty($request->categories)) {
-            $categoryIds = is_array($request->categories)
-                ? $request->categories
-                : explode(',', $request->categories);
-
-            $query->whereIn('category_id', $categoryIds);
+        if ($request->filled('categories')) {
+            $categoryIds = array_filter($request->input('categories'));
+            if (!empty($categoryIds)) {
+                $query->whereIn('category_id', $categoryIds);
+            }
         }
 
         // filter rak "ZIP only"
@@ -51,8 +52,15 @@ class ItemController extends Controller
             });
         }
 
+        // pagination dengan opsi per_page
+        $perPage = $request->input('per_page', 25);
+        $allowedPerPage = [25, 50, 100];
+        if (!in_array((int)$perPage, $allowedPerPage)) {
+            $perPage = 25;
+        }
+
         $items = $query->orderBy('created_at', 'desc')
-            ->paginate(10)
+            ->paginate($perPage)
             ->withQueryString();
 
         // urutkan kategori → default selalu paling atas
@@ -65,6 +73,62 @@ class ItemController extends Controller
             $categories->push($defaultCategory);
         }
         $categories = $categories->merge($otherCategories);
+
+        // Jika AJAX request, return JSON
+        if ($request->ajax()) {
+            try {
+                // Generate table body HTML
+                $tableBodyHtml = '<tbody id="itemsTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">';
+                
+                if ($items->isEmpty()) {
+                    $tableBodyHtml .= '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">Barang tidak ditemukan.</td></tr>';
+                } else {
+                    foreach ($items as $item) {
+                        $userCanEdit = in_array(auth()->user()->role, ['admin', 'superadmin']);
+                        $editButton = $userCanEdit ? '<a href="' . route('items.edit', $item->id) . '" class="px-3 py-0.5 rounded bg-yellow-500 text-white hover:bg-yellow-600 text-sm">Edit</a>' : '';
+                        $deleteButton = $userCanEdit ? '<button type="button" class="px-3 py-0.5 rounded bg-red-600 text-white hover:bg-red-700 text-sm delete-item-btn" data-item-id="' . $item->id . '" data-item-name="' . htmlspecialchars($item->dscription) . '">Hapus</button>' : '';
+                        $checkbox = $userCanEdit ? '<input type="checkbox" class="itemCheckbox w-4 h-4" value="' . $item->id . '">' : '';
+                        $deleteForm = $userCanEdit ? '<form id="delete-form-' . $item->id . '" action="' . route('items.destroy', $item->id) . '" method="POST" class="inline-block">' . csrf_field() . method_field('DELETE') . $deleteButton . '</form>' : '';
+                        $actionCell = $userCanEdit ? '<td class="px-4 py-3 text-center"><div class="flex justify-center gap-x-2">' . $editButton . $deleteForm . '</div></td>' : '';
+                        $checkboxCell = $userCanEdit ? '<td class="px-4 py-3 text-center">' . $checkbox . '</td>' : '';
+                        
+                        $tableBodyHtml .= '<tr>' .
+                            '<td class="px-4 py-3">' . htmlspecialchars($item->dscription) . '</td>' .
+                            '<td class="px-4 py-3 text-center">' . htmlspecialchars($item->itemCode) . '</td>' .
+                            '<td class="px-4 py-3 text-center">' . htmlspecialchars($item->codeBars ?? '-') . '</td>' .
+                            '<td class="px-4 py-3 text-center">' . htmlspecialchars($item->category->name ?? '-') . '</td>' .
+                            '<td class="px-4 py-3 text-center">' . htmlspecialchars($item->rack_location) . '</td>' .
+                            $actionCell . $checkboxCell .
+                            '</tr>';
+                    }
+                }
+                
+                $tableBodyHtml .= '</tbody>';
+                
+                // Generate pagination info
+                $paginationInfo = sprintf(
+                    'Menampilkan %d - %d dari %d total barang%s',
+                    $items->firstItem() ?? 0,
+                    $items->lastItem() ?? 0,
+                    $items->total(),
+                    (request('per_page') && request('per_page') != 25) ? ' (' . request('per_page') . ' item per halaman)' : ''
+                );
+                
+                return response()->json([
+                    'html' => $tableBodyHtml,
+                    'pagination' => $items->withQueryString()->links()->render(),
+                    'info' => '<div class="text-sm text-gray-600 dark:text-gray-400">' . $paginationInfo . '</div>',
+                    'total' => $items->total(),
+                    'current_page' => $items->currentPage(),
+                    'per_page' => $items->perPage(),
+                    'from' => $items->firstItem(),
+                    'to' => $items->lastItem()
+                ]);
+            } catch (\Exception $e) {
+                \Log::error('AJAX pagination error: ' . $e->getMessage());
+                return response()->json(['error' => 'Server error'], 500);
+            }
+        }
 
         return view('items.index', compact('items', 'categories'));
     }

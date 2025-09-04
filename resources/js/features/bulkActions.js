@@ -76,4 +76,48 @@ export function initBulkActions() {
 
     // Initial check on load
     toggleActionButtons();
+    
+    // Listen for checkbox state changes from AJAX pagination
+    document.addEventListener('checkboxStateChanged', toggleActionButtons);
 }
+
+// Export function to re-initialize bulk actions after AJAX updates
+export function reinitializeBulkActions() {
+    const tambahBarangBtn = document.getElementById('tambahBarangBtn');
+    const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+    
+    function toggleActionButtons() {
+        const checkedCount = document.querySelectorAll('.itemCheckbox:checked').length;
+        if (checkedCount > 0) {
+            deleteSelectedBtn?.classList.remove('hidden');
+            tambahBarangBtn?.classList.add('opacity-50', 'pointer-events-none');
+        } else {
+            deleteSelectedBtn?.classList.add('hidden');
+            tambahBarangBtn?.classList.remove('opacity-50', 'pointer-events-none');
+        }
+    }
+    
+    // Re-bind events for new elements
+    document.querySelectorAll('.itemCheckbox').forEach(cb => {
+        cb.removeEventListener('change', toggleActionButtons);
+        cb.addEventListener('change', toggleActionButtons);
+    });
+    
+    const selectAll = document.getElementById('selectAll');
+    if (selectAll) {
+        selectAll.removeEventListener('change', handleSelectAllBulk);
+        selectAll.addEventListener('change', handleSelectAllBulk);
+    }
+    
+    function handleSelectAllBulk() {
+        const itemCheckboxes = document.querySelectorAll('.itemCheckbox');
+        itemCheckboxes.forEach(cb => { cb.checked = selectAll.checked; });
+        toggleActionButtons();
+    }
+    
+    // Update button states
+    toggleActionButtons();
+}
+
+// Make function available globally for pagination module
+window.reinitializeBulkActions = reinitializeBulkActions;

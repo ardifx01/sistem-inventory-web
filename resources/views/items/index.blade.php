@@ -75,9 +75,32 @@
     <div class="bg-white dark:bg-gray-800 shadow rounded-xl border border-gray-200/20 overflow-hidden">
         <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200">Daftar Barang</h2>
+            
+            {{-- Dropdown Items per Page --}}
+            <div class="flex items-center gap-2">
+                <label for="perPageSelect" class="text-sm text-gray-600 dark:text-gray-400">
+                    Tampilkan:
+                </label>
+                <div class="relative">
+                    <select id="perPageSelect" 
+                            class="appearance-none px-3 py-1.5 pr-8 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200 cursor-pointer"
+                            style="-webkit-appearance: none; -moz-appearance: none; background-image: none;">
+                        <option value="25" {{ request('per_page', 25) == 25 ? 'selected' : '' }}>25</option>
+                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        <option value="100" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                    {{-- Custom dropdown arrow --}}
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </div>
+                <span class="text-sm text-gray-600 dark:text-gray-400">item per halaman</span>
+            </div>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-sm min-w-[900px]">
+            <table class="w-full text-sm min-w-[900px]" id="itemsTable">
                 <thead class="bg-gray-100 dark:bg-gray-700/60 text-gray-700 dark:text-gray-200">
                     <tr>
                         <th class="px-4 py-3 text-left">Nama Barang</th>
@@ -94,54 +117,53 @@
                         @endif
                     </tr>
                 </thead>
-<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-    @if($items->isEmpty())
-        <tr>
-            <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
-                Barang tidak ditemukan.
-            </td>
-        </tr>
-    @else
-        @foreach($items as $item)
-        <tr>
-            {{-- Name diganti jadi dscription --}}
-            <td class="px-4 py-3">{{ $item->dscription }}</td>
+                <tbody id="itemsTableBody" class="divide-y divide-gray-200 dark:divide-gray-700">
+                    @if($items->isEmpty())
+                        <tr>
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-500 dark:text-gray-400">
+                                Barang tidak ditemukan.
+                            </td>
+                        </tr>
+                    @else
+                        @foreach($items as $item)
+                        <tr>
+                            {{-- Name diganti jadi dscription --}}
+                            <td class="px-4 py-3">{{ $item->dscription }}</td>
 
-            {{-- item_code diganti jadi itemCode --}}
-            <td class="px-4 py-3 text-center">{{ $item->itemCode }}</td>
+                            {{-- item_code diganti jadi itemCode --}}
+                            <td class="px-4 py-3 text-center">{{ $item->itemCode }}</td>
 
-            {{-- barcode diganti jadi codeBars --}}
-            <td class="px-4 py-3 text-center">{{ $item->codeBars ?? '-' }}</td>
+                            {{-- barcode diganti jadi codeBars --}}
+                            <td class="px-4 py-3 text-center">{{ $item->codeBars ?? '-' }}</td>
 
-            <td class="px-4 py-3 text-center">{{ $item->category->name ?? '-' }}</td>
-            <td class="px-4 py-3 text-center">{{ $item->rack_location }}</td>
-            @if(in_array(Auth::user()->role, ['admin','superadmin']))
-            <td class="px-4 py-3 text-center">
-                <div class="flex justify-center gap-x-2">
-                    <a href="{{ route('items.edit', $item->id) }}"
-                       class="px-3 py-0.5 rounded bg-yellow-500 text-white hover:bg-yellow-600 text-sm">
-                        Edit
-                    </a>
-                    <form id="delete-form-{{ $item->id }}" action="{{ route('items.destroy', $item->id) }}" method="POST" class="inline-block">
-                        @csrf @method('DELETE')
-                        <button type="button"
-                                class="px-3 py-0.5 rounded bg-red-600 text-white hover:bg-red-700 text-sm delete-item-btn"
-                                data-item-id="{{ $item->id }}"
-                                data-item-name="{{ $item->dscription }}">
-                            Hapus
-                        </button>
-                    </form>
-                </div>
-            </td>
-            <td class="px-4 py-3 text-center">
-                <input type="checkbox" class="itemCheckbox w-4 h-4" value="{{ $item->id }}">
-            </td>
-            @endif
-        </tr>
-        @endforeach
-    @endif
-</tbody>
-
+                            <td class="px-4 py-3 text-center">{{ $item->category->name ?? '-' }}</td>
+                            <td class="px-4 py-3 text-center">{{ $item->rack_location }}</td>
+                            @if(in_array(Auth::user()->role, ['admin','superadmin']))
+                            <td class="px-4 py-3 text-center">
+                                <div class="flex justify-center gap-x-2">
+                                    <a href="{{ route('items.edit', $item->id) }}"
+                                       class="px-3 py-0.5 rounded bg-yellow-500 text-white hover:bg-yellow-600 text-sm">
+                                        Edit
+                                    </a>
+                                    <form id="delete-form-{{ $item->id }}" action="{{ route('items.destroy', $item->id) }}" method="POST" class="inline-block">
+                                        @csrf @method('DELETE')
+                                        <button type="button"
+                                                class="px-3 py-0.5 rounded bg-red-600 text-white hover:bg-red-700 text-sm delete-item-btn"
+                                                data-item-id="{{ $item->id }}"
+                                                data-item-name="{{ $item->dscription }}">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                                <input type="checkbox" class="itemCheckbox w-4 h-4" value="{{ $item->id }}">
+                            </td>
+                            @endif
+                        </tr>
+                        @endforeach
+                    @endif
+                </tbody>
             </table>
 @if(session('import_success') !== null)
     <script>
@@ -171,8 +193,20 @@
 
         </div>
 
-        <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
-            {{ $items->withQueryString()->links() }}
+        <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-3">
+            {{-- Informasi Data --}}
+            <div id="paginationInfo" class="text-sm text-gray-600 dark:text-gray-400">
+                Menampilkan {{ $items->firstItem() ?? 0 }} - {{ $items->lastItem() ?? 0 }} 
+                dari {{ $items->total() }} total barang
+                @if(request('per_page') && request('per_page') != 25)
+                    ({{ request('per_page') }} item per halaman)
+                @endif
+            </div>
+            
+            {{-- Pagination Links --}}
+            <div class="flex-shrink-0" id="paginationLinks">
+                {{ $items->withQueryString()->links() }}
+            </div>
         </div>
     </div>
 

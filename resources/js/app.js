@@ -7,6 +7,7 @@ import { initBulkActions } from './features/bulkActions';
 import { initSearch } from './features/search';
 import { initCategories } from './features/categories/crud';
 import { initCategoryFilter } from './features/categories/filter';
+import { initializePagination } from './features/pagination';
 
 window.Alpine = Alpine;
 window.Html5Qrcode = Html5Qrcode;
@@ -19,6 +20,8 @@ document.addEventListener("DOMContentLoaded", function () {
     initSearch();
     initCategories();
     initCategoryFilter();
+    initializePagination();
 });
 
+Alpine.start();
 Alpine.start();
