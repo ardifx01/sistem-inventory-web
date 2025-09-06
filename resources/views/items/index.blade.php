@@ -42,6 +42,14 @@
             <button type="submit" id="submitImportBtn" class="hidden"></button>
         </form>
 
+        <a href="{{ route('items.downloadTemplate') }}" 
+           class="ml-2 px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 text-sm font-medium inline-flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Download Template
+        </a>
+
         <script>
             document.getElementById('importBtn').addEventListener('click', function(){
                 document.getElementById('importFileInput').click();
@@ -166,25 +174,159 @@
                 </tbody>
             </table>
 @if(session('import_success') !== null)
-    <script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const successCount = {{ session('import_success', 0) }};
+    const failedCount = {{ session('import_failed', 0) }};
+    const failedItems = @json(session('failed_items', []));
+    const errorDetails = @json(session('error_details', []));
+    
+    let title, icon, html;
+    
+    if (failedCount === 0) {
+        // Perfect Import
+        title = '✅ Import Selesai';
+        icon = 'success';
+        html = `
+            <div class="import-result">
+                <div class="success-badge">
+                    <div class="big-number">${successCount}</div>
+                    <div class="label">Item Berhasil</div>
+                </div>
+                <div class="success-message">
+                    Semua data berhasil diimport ke sistem
+                </div>
+            </div>
+            
+            <style>
+                .import-result { text-align: center; }
+                .success-badge { background: #F0FDF4; padding: 20px; border-radius: 12px; border: 2px solid #10B981; margin: 15px 0; }
+                .big-number { font-size: 28px; font-weight: bold; color: #10B981; }
+                .label { font-size: 14px; color: #065F46; margin-top: 5px; }
+                .success-message { color: #065F46; margin-top: 15px; font-weight: 500; }
+            </style>
+        `;
+        
         Swal.fire({
-            title: 'Import Selesai',
-            html: `
-                <b>Berhasil:</b> {{ session('import_success') }} item<br>
-                <b>Gagal:</b> {{ session('import_failed') }} item<br>
-                @if(session('failed_items') && count(session('failed_items')) > 0)
-                    <br><b>Item gagal:</b> {{ implode(', ', session('failed_items')) }}
-                @endif
-            `,
-            icon: '{{ session('import_failed') > 0 ? 'warning' : 'success' }}',
+            title: title,
+            html: html,
+            icon: icon,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#10B981',
+            allowOutsideClick: false
         });
-    </script>
+        
+    } else {
+        // Partial or Full Failure
+        title = '✅ Import Selesai';
+        icon = failedCount === (successCount + failedCount) ? 'warning' : 'warning';
+        
+        html = `
+            <div class="import-result">
+                <div class="stats-grid">
+                    <div class="stat-card success">
+                        <div class="big-number">${successCount}</div>
+                        <div class="label">Item Berhasil</div>
+                    </div>
+                    <div class="stat-card failed">
+                        <div class="big-number">${failedCount}</div>
+                        <div class="label">Item Gagal</div>
+                    </div>
+                </div>
+                
+                ${failedCount > 0 ? `
+                <div class="error-info">
+                    <p>💡 <strong>Download error list untuk detail</strong></p>
+                </div>
+                ` : ''}
+            </div>
+            
+            <style>
+                .import-result { text-align: center; }
+                .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+                .stat-card { padding: 20px; border-radius: 10px; }
+                .stat-card.success { background: #F0FDF4; border: 2px solid #10B981; }
+                .stat-card.failed { background: #FEF2F2; border: 2px solid #EF4444; }
+                .big-number { font-size: 28px; font-weight: bold; }
+                .success .big-number { color: #10B981; }
+                .failed .big-number { color: #EF4444; }
+                .label { font-size: 14px; color: #6B7280; margin-top: 8px; font-weight: 500; }
+                .error-info { background: #F3F4F6; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: left; }
+            </style>
+        `;
+        
+        Swal.fire({
+            title: title,
+            html: html,
+            icon: icon,
+            showConfirmButton: true,
+            showDenyButton: failedCount > 0,
+            confirmButtonText: 'Tutup',
+            denyButtonText: '📥 Download Error List',
+            confirmButtonColor: '#6B7280',
+            denyButtonColor: '#EF4444',
+            width: '480px',
+            allowOutsideClick: false
+        }).then((result) => {
+            if (result.isDenied) {
+                downloadErrorReport(errorDetails);
+            }
+        });
+    }
+});
+
+function downloadErrorReport(errorDetails) {
+    // Show loading
+    Swal.fire({
+        title: 'Menyiapkan Error Report...',
+        text: 'Sedang membuat file dengan detail error',
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => { Swal.showLoading(); }
+    });
+    
+    // Create form and submit
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ route("items.import.error-report") }}';
+    form.style.display = 'none';
+    
+    // CSRF Token
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = '{{ csrf_token() }}';
+    form.appendChild(csrfInput);
+    
+    // Error details data
+    const dataInput = document.createElement('input');
+    dataInput.type = 'hidden';
+    dataInput.name = 'error_details';
+    dataInput.value = JSON.stringify(errorDetails);
+    form.appendChild(dataInput);
+    
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+    
+    // Close loading and show success message briefly
+    setTimeout(() => {
+        Swal.fire({
+            title: '✅ Download Dimulai',
+            text: 'File error report akan segera terdownload',
+            icon: 'success',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }, 1000);
+}
+</script>
 @endif
 
 @if(session('error'))
     <script>
         Swal.fire({
-            title: 'Error',
+            title: 'Gagal',
             text: "{{ session('error') }}",
             icon: 'error',
         });

@@ -83,7 +83,7 @@
                     if (window.Swal) {
                         Swal.fire({
                             icon: 'error',
-                            title: 'Oops...',
+                            title: 'Gagal!',
                             text: '{{ session('error') }}',
                             confirmButtonColor: '#EF4444',
                             confirmButtonText: 'OK',

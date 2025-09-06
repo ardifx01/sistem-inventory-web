@@ -59,7 +59,7 @@ class ItemController extends Controller
             $perPage = 25;
         }
 
-        $items = $query->orderBy('created_at', 'desc')
+        $items = $query->orderBy('dscription', 'asc')
             ->paginate($perPage)
             ->withQueryString();
 
@@ -260,6 +260,7 @@ public function import(Request $request)
         $successTotal = 0;
         $failedTotal  = 0;
         $failedItems  = [];
+        $errorDetails = []; // Store all error details
 
         if ($request->hasFile('files')) {
             foreach ($request->file('files') as $file) {
@@ -269,6 +270,7 @@ public function import(Request $request)
                 $successTotal += $import->successCount;
                 $failedTotal  += $import->failedCount;
                 $failedItems  = array_merge($failedItems, $import->failedItems);
+                $errorDetails = array_merge($errorDetails, $import->errorDetails ?? []);
             }
         }
 
@@ -276,6 +278,7 @@ public function import(Request $request)
             'import_success' => $successTotal,
             'import_failed'  => $failedTotal,
             'failed_items'   => $failedItems,
+            'error_details'  => $errorDetails,
         ]);
     } catch (\Exception $e) {
         return redirect()->route('items.index')->with('error', 'Gagal import file: ' . $e->getMessage());
@@ -286,6 +289,19 @@ public function import(Request $request)
 public function downloadTemplate()
 {
     return Excel::download(new ItemsTemplateExport, 'template_import_items.xlsx');
+}
+
+public function downloadErrorReport(Request $request)
+{
+    $errorDetails = json_decode($request->input('error_details', '[]'), true);
+    
+    if (empty($errorDetails)) {
+        return redirect()->back()->with('error', 'Tidak ada data error untuk didownload');
+    }
+    
+    $filename = 'import_errors_' . date('Y-m-d_H-i-s') . '.xlsx';
+    
+    return Excel::download(new \App\Exports\ImportErrorReportExport($errorDetails), $filename);
 }
 
 
