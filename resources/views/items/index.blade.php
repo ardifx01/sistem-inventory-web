@@ -36,14 +36,14 @@
             @csrf
             <input type="file" name="files[]" accept=".xlsx,.xls,.csv" id="importFileInput" multiple class="hidden">
             <button type="button" id="importBtn"
-                    class="px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 text-sm">
+                    class="px-4 py-2.5 rounded-lg bg-green-600 text-white hover:bg-green-700 text-sm font-medium">
                 Import
             </button>
             <button type="submit" id="submitImportBtn" class="hidden"></button>
         </form>
 
         <a href="{{ route('items.downloadTemplate') }}" 
-           class="ml-2 px-4 py-2 rounded-lg bg-purple-600 text-white hover:bg-purple-700 text-sm font-medium inline-flex items-center">
+           class="ml-2 px-4 py-2.5 rounded-lg bg-purple-600 text-white hover:bg-purple-700 text-sm font-medium inline-flex items-center">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 ${failedCount > 0 ? `
                 <div class="error-info">
-                    <p>💡 <strong>Download error list untuk detail</strong></p>
+                    <p style="color: #374151; font-weight: 600;">💡 <strong>Download error list untuk detail</strong></p>
                 </div>
                 ` : ''}
             </div>
@@ -251,7 +251,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 .success .big-number { color: #10B981; }
                 .failed .big-number { color: #EF4444; }
                 .label { font-size: 14px; color: #6B7280; margin-top: 8px; font-weight: 500; }
-                .error-info { background: #F3F4F6; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: left; }
+                .error-info { 
+                    background: #F3F4F6; 
+                    padding: 15px; 
+                    border-radius: 8px; 
+                    margin-top: 20px; 
+                    text-align: left;
+                    border: 1px solid #D1D5DB;
+                }
+                .error-info p {
+                    color: #374151;
+                    margin: 0;
+                    font-weight: 600;
+                }
             </style>
         `;
         
